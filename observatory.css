@@ -1,0 +1,3688 @@
+/* =========================================================================
+   FOCAL: THE GENTLE OBSERVATORY
+   Aesthetic: Studio Ghibli sky-workshop at dusk · Monument Valley softness
+   A quiet hilltop observatory that listens to the day's wind, light & echo.
+   ========================================================================= */
+
+@import "./styles.css";
+
+/* --- 1. PALETTE & TYPOGRAPHY ------------------------------------------- */
+:root {
+  --card-rgb: 66, 44, 82;
+  --well-rgb: 40, 24, 52;
+  --bg-black: #2b1d3b;
+  --bg-card: rgba(var(--card-rgb), 0.76);
+  --bg-card-hover: rgba(var(--card-rgb), 0.88);
+  --bg-elevated: rgba(var(--card-rgb), 0.68);
+  --bg-well: rgba(var(--well-rgb), 0.52);
+
+  --border-hairline: rgba(255, 236, 214, 0.14);
+  --border-subtle: rgba(255, 236, 214, 0.25);
+  --border-warm: rgba(255, 207, 160, 0.48);
+
+  --text-white: #fff4e6; /* warm cream paper */
+  --text-secondary: #f2e4f0; /* soft rose-lilac mist */
+  --text-muted: #d1bdd4; /* evening haze */
+
+  --amber: #ffcf7a; /* lamp light */
+  --teal: #9fe3c4; /* sage mint */
+  --blue: #9bd1e5; /* morning sky */
+  --coral: #f4a9a0; /* peach, never alarm red */
+  --purple: #d8b8f0; /* lavender dusk */
+  --gold-accent: #ffd9a0; /* warm candle */
+
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Responsive Game Board Dimensions (updated via @media queries) */
+  --denge-cell-size: 62px;
+  --denge-gap: 6px;
+  --sonar-cell-size: 56px;
+  --sonar-tx-size: 38px;
+  --sonar-gap: 6px;
+  --res-cell-size: 58px;
+  --res-gap: 6px;
+}
+
+/* --- 2. THE QUIET SKY --------------------------------------------------- */
+/* Colours are written to :root by js/atmosphere.js (clock + weekday). The values below are the
+   warm dusk fallback. Nothing in the sky animates continuously. */
+:root {
+  --sky-top: #4e3563;
+  --sky-mid: #9e5676;
+  --sky-low: #eba082;
+  --hill: #38254a;
+  --star-opacity: 0.1;
+  --body-core: #fff3de;
+  --body-edge: #ffc69c;
+  --body-glow-rgb: 255, 198, 156;
+  --body-x: 80;
+  --body-y: 24;
+  --body-size: 52px;
+}
+
+html {
+  background: var(--sky-top);
+}
+
+body {
+  background-color: var(--sky-top);
+  background-image: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-mid) 55%,
+    var(--sky-low) 100%
+  );
+  background-attachment: fixed;
+  color: var(--text-white);
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Sparse, static stars; only their opacity follows the hour */
+.sky-stars {
+  position: absolute;
+  inset: 0 0 38% 0;
+  background-image:
+    radial-gradient(1.3px 1.3px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 120px, #ffeccf, transparent),
+    radial-gradient(1.5px 1.5px at 160px 60px, #fff, transparent),
+    radial-gradient(1px 1px at 240px 160px, #ffeccf, transparent),
+    radial-gradient(1.2px 1.2px at 310px 20px, #fff, transparent),
+    radial-gradient(1px 1px at 60px 210px, #fff, transparent);
+  background-size: 340px 240px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+  opacity: var(--star-opacity);
+}
+
+/* One sun / moon riding a single arc, hidden behind the hill at the horizon */
+.sky-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--body-size);
+  height: var(--body-size);
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 34%, var(--body-core), var(--body-edge) 75%);
+  box-shadow:
+    0 0 28px rgba(var(--body-glow-rgb), 0.5),
+    0 0 90px rgba(var(--body-glow-rgb), 0.24);
+  transform: translate(
+    calc(var(--body-x) * 1vw - var(--body-size) / 2),
+    calc(var(--body-y) * 1vh - var(--body-size) / 2)
+  );
+}
+
+/* A single gentle glide (once per update) after first paint; never on load */
+.sky-ready .sky-body {
+  transition: transform 2s ease-in-out;
+}
+
+.sky-hills {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: min(34vh, 300px);
+  min-height: 170px;
+}
+
+.hill { fill: var(--hill); }
+
+.studio-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 150px;
+}
+
+/* --- 3. BRAND & NAVIGATION --------------------------------------------- */
+.studio-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-hairline);
+  gap: 16px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-white);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+
+.brand-mark:hover {
+  opacity: 0.92;
+}
+
+.brand-glyph {
+  width: 16px;
+  height: 16px;
+  border-radius: 4.5px;
+  border: 1.5px solid var(--text-white);
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 207, 122, 0.06);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-glyph::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff8eb 0%, var(--amber) 65%, #f5a855 100%);
+  box-shadow: 0 0 7px rgba(255, 207, 122, 0.75);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-mark:hover .brand-glyph {
+  transform: scale(1.08);
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 207, 122, 0.25);
+}
+
+.brand-mark:hover .brand-glyph::after {
+  transform: scale(1.15);
+  box-shadow: 0 0 11px rgba(255, 207, 122, 0.95);
+}
+
+.brand-name {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text-white);
+  line-height: 1;
+}
+
+.nav-modules {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+.nav-mod-btn {
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nav-mod-btn:hover,
+.nav-mod-btn.active { color: var(--text-white); }
+
+.nav-mod-btn.active .mod-num { color: var(--amber); opacity: 1; }
+
+.solved-dot.active,
+.solved-dot.done {
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.daily-clock-pill {
+  border: 1px solid var(--border-subtle);
+  background: rgba(var(--card-rgb), 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.daily-clock-pill .pulse-indicator {
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber);
+  animation: filamentGlow 3s ease-in-out infinite alternate;
+}
+
+.icon-btn {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.icon-btn:hover {
+  color: var(--text-white);
+  background: rgba(255, 244, 230, 0.1);
+  border-color: var(--border-subtle);
+}
+
+/* Ambient Music Control (Icon in header, popout slider on click) */
+.ambient-control-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ambient-toggle-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ambient-toggle-btn:hover {
+  color: var(--text-white);
+  background: rgba(255, 244, 230, 0.1);
+  border-color: var(--border-subtle);
+}
+
+.ambient-control-pill.is-playing .ambient-toggle-btn {
+  color: var(--amber);
+  background: rgba(255, 207, 122, 0.14);
+  border-color: rgba(255, 207, 122, 0.35);
+  box-shadow: 0 0 10px rgba(255, 207, 122, 0.15);
+}
+
+.ambient-pulse-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.ambient-control-pill.is-playing .ambient-pulse-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Floating volume popover that pops out when clicked */
+.ambient-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(38, 24, 52, 0.94);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 28px rgba(18, 10, 26, 0.65), 0 0 1px rgba(255, 207, 122, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.96);
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.18s;
+  white-space: nowrap;
+}
+
+.ambient-control-pill.popover-open .ambient-popover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.ambient-popover-mute {
+  background: rgba(255, 244, 230, 0.08);
+  border: 1px solid var(--border-hairline);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ambient-popover-mute:hover {
+  background: rgba(255, 207, 122, 0.18);
+  border-color: rgba(255, 207, 122, 0.4);
+}
+
+.ambient-popover-mute.is-muted {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: transparent;
+}
+
+.ambient-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 72px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 244, 230, 0.18);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ambient-volume-slider:hover {
+  background: rgba(255, 244, 230, 0.28);
+}
+
+.ambient-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold-accent);
+  border: 1.5px solid #2b1d3b;
+  box-shadow: 0 0 6px rgba(255, 207, 122, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.ambient-volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+  background: #fff4e6;
+}
+
+.ambient-volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold-accent);
+  border: 1.5px solid #2b1d3b;
+  box-shadow: 0 0 6px rgba(255, 207, 122, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.ambient-volume-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--gold-accent);
+  min-width: 28px;
+  text-align: right;
+  letter-spacing: -0.02em;
+}
+
+.ambient-popover-mute.is-muted ~ .ambient-volume-label {
+  color: var(--text-muted);
+}
+
+
+/* --- 4. THE OBSERVATION DESK (HUB) ------------------------------------- */
+.hub-section { gap: 28px; }
+
+.obs-station-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--gold-accent);
+  margin-bottom: 14px;
+  background: rgba(255, 217, 160, 0.1);
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 217, 160, 0.28);
+}
+
+.obs-station-tag .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px var(--teal);
+}
+
+.obs-station-tag .tag-sep { opacity: 0.5; }
+
+.hub-headline {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--text-white);
+  margin-bottom: 12px;
+  text-shadow:
+    0 2px 18px rgba(var(--well-rgb), 0.75),
+    0 1px 3px rgba(var(--well-rgb), 0.55);
+}
+
+.hub-headline em {
+  font-style: italic;
+  color: var(--gold-accent);
+}
+
+.hub-subline {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-white);
+  opacity: 0.92;
+  max-width: 600px;
+  text-shadow:
+    0 1px 12px rgba(var(--well-rgb), 0.7),
+    0 1px 2px rgba(var(--well-rgb), 0.5);
+}
+
+.daily-progress-summary {
+  background: rgba(var(--card-rgb), 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lantern-row { display: inline-flex; gap: 7px; align-items: center; }
+
+.lantern {
+  width: 9px;
+  height: 13px;
+  border-radius: 4px 4px 5px 5px;
+  background: rgba(255, 244, 230, 0.16);
+  border: 1px solid rgba(255, 244, 230, 0.25);
+  transition: all 0.6s ease;
+}
+
+.lantern.lit {
+  background: var(--amber);
+  border-color: #ffe3a3;
+  box-shadow: 0 0 12px 2px rgba(255, 207, 122, 0.6);
+  animation: filamentGlow 3.5s ease-in-out infinite alternate;
+}
+
+/* --- INSTRUMENT CARDS: Unified Architecture & Distinct Diorama Palettes --- */
+.instrument-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.instrument-card {
+  --card-accent: #ffd9a0;
+  --card-accent-soft: rgba(255, 217, 160, 0.14);
+  --card-border-hover: rgba(255, 207, 160, 0.52);
+
+  background: linear-gradient(165deg, rgba(var(--card-rgb), 0.84) 0%, rgba(var(--well-rgb), 0.88) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-hairline);
+  border-radius: 24px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 16px;
+  box-shadow: 0 12px 36px rgba(var(--well-rgb), 0.36);
+  transition: all 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Per-card subtle elemental accent themes */
+.instrument-card.card-theme-balance {
+  --card-accent: #ffd28a;
+  --card-accent-soft: rgba(255, 210, 138, 0.14);
+  --card-border-hover: rgba(255, 210, 138, 0.55);
+}
+
+.instrument-card.card-theme-sonar {
+  --card-accent: #9fe3c4;
+  --card-accent-soft: rgba(159, 227, 196, 0.14);
+  --card-border-hover: rgba(159, 227, 196, 0.52);
+}
+
+.instrument-card.card-theme-resonance {
+  --card-accent: #9bd1e5;
+  --card-accent-soft: rgba(155, 209, 229, 0.14);
+  --card-border-hover: rgba(155, 209, 229, 0.52);
+}
+
+.instrument-card.card-theme-echo {
+  --card-accent: #f3c4dc;
+  --card-accent-soft: rgba(243, 196, 220, 0.14);
+  --card-border-hover: rgba(243, 196, 220, 0.52);
+}
+
+.instrument-card.card-theme-prism {
+  --card-accent: #ffd978;
+  --card-accent-soft: rgba(255, 217, 120, 0.14);
+  --card-border-hover: rgba(255, 217, 120, 0.52);
+}
+
+.instrument-card.card-theme-knot {
+  --card-accent: #9fe3c4;
+  --card-accent-soft: rgba(159, 227, 196, 0.14);
+  --card-border-hover: rgba(159, 227, 196, 0.52);
+}
+
+.instrument-card.card-theme-circuit {
+  --card-accent: #9bd1e5;
+  --card-accent-soft: rgba(155, 209, 229, 0.14);
+  --card-border-hover: rgba(155, 209, 229, 0.52);
+}
+
+.instrument-card.card-theme-spectrum {
+  --card-accent: #d8b8f0;
+  --card-accent-soft: rgba(216, 184, 240, 0.14);
+  --card-border-hover: rgba(216, 184, 240, 0.52);
+}
+
+.instrument-card:hover,
+.instrument-card:focus-visible {
+  background: linear-gradient(165deg, rgba(var(--card-rgb), 0.92) 0%, rgba(var(--well-rgb), 0.94) 100%);
+  border-color: var(--card-border-hover);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 46px rgba(var(--well-rgb), 0.48), 0 0 28px var(--card-accent-soft);
+  outline: none;
+}
+
+.inst-top-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+}
+
+.inst-index {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+.inst-num-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--card-accent);
+  background: var(--card-accent-soft);
+  border: 1px solid rgba(255, 244, 230, 0.14);
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.inst-status {
+  color: var(--text-secondary);
+  background: rgba(255, 244, 230, 0.08);
+  border: 1px solid rgba(255, 244, 230, 0.08);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.inst-status.is-solved,
+.inst-status.completed {
+  color: #3b2f5e;
+  background: var(--amber);
+  border-color: transparent;
+  box-shadow: 0 0 14px rgba(255, 207, 122, 0.4);
+  font-weight: 600;
+}
+
+/* 4 Distinct Miniature Diorama Backdrops (never repeating the page background) */
+.inst-diagram {
+  height: 108px;
+  border: 1px solid rgba(255, 236, 214, 0.16);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 14px rgba(10, 6, 18, 0.45);
+  transition: all 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.diagram-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+/* 01 Balance: Warm Candlelit Brass & Cedar Workshop */
+.inst-diagram.diagram-balance {
+  background: linear-gradient(165deg, #2a1b36 0%, #4b2b48 52%, #7d484d 100%);
+}
+
+/* 02 Sonar: Deep Bioluminescent Midnight Cove */
+.inst-diagram.diagram-sonar {
+  background: linear-gradient(165deg, #102036 0%, #183a56 54%, #245c6e 100%);
+}
+
+/* 03 Resonance: Prismatic Velvet Indigo & Aurora Chamber */
+.inst-diagram.diagram-resonance {
+  background: linear-gradient(165deg, #191a38 0%, #2d2856 52%, #4a3469 100%);
+}
+
+/* 04 Echo: Misty Starlight Alpine Valley */
+.inst-diagram.diagram-echo {
+  background: linear-gradient(165deg, #1d1836 0%, #382a59 52%, #68446c 100%);
+}
+
+/* 05 Prism: Amber Hearth & Optical Chamber */
+.inst-diagram.diagram-prism {
+  background: linear-gradient(165deg, #291a2e 0%, #4a2842 52%, #754636 100%);
+}
+
+/* 06 Knot: Deep Oceanic Celestial Constellation */
+.inst-diagram.diagram-knot {
+  background: linear-gradient(165deg, #111a2f 0%, #1a3346 52%, #2b565a 100%);
+}
+
+/* 07 Circuit: Nocturnal Dynamo Indigo & Brass Conduit */
+.inst-diagram.diagram-circuit {
+  background: linear-gradient(165deg, #161e38 0%, #24355a 52%, #385072 100%);
+}
+
+/* 08 Spectrum: Velvet Violet Prismatic Chamber */
+.inst-diagram.diagram-spectrum {
+  background: linear-gradient(165deg, #20163a 0%, #3c245c 52%, #633268 100%);
+}
+
+.instrument-card:hover .inst-diagram {
+  border-color: var(--card-border-hover);
+  filter: brightness(1.07);
+}
+
+/* --- INTERACTIVE HOVER-ONLY DIAGRAM ANIMATIONS (Still when idle) --- */
+
+/* 01 Balance: Tilted when idle; levels to 0° & blooms center halo on hover */
+.balance-beam-group {
+  transform-box: view-box;
+  transform-origin: 140px 62px;
+  transform: rotate(-5.5deg);
+  transition: transform 0.72s cubic-bezier(0.22, 1.35, 0.36, 1);
+}
+
+.balance-halo {
+  transform-box: view-box;
+  transform-origin: 140px 62px;
+  opacity: 0;
+  transform: scale(0.65);
+  transition: opacity 0.55s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.balance-ring {
+  transform-box: view-box;
+  transform-origin: 140px 62px;
+  opacity: 0.65;
+  transition: all 0.55s ease;
+}
+
+.balance-outer-halo-ring {
+  transform-box: view-box;
+  transform-origin: 140px 62px;
+  opacity: 0;
+  transform: scale(0.75);
+  transition: opacity 0.55s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.balance-pivot-dot {
+  transition: filter 0.45s ease, fill 0.45s ease;
+}
+
+.instrument-card:hover .balance-beam-group,
+.instrument-card:focus-visible .balance-beam-group {
+  transform: rotate(0deg);
+}
+
+.instrument-card:hover .balance-halo,
+.instrument-card:focus-visible .balance-halo {
+  opacity: 1;
+  transform: scale(1.18);
+}
+
+.instrument-card:hover .balance-ring,
+.instrument-card:focus-visible .balance-ring {
+  opacity: 1;
+  stroke: #ffe9b5;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 8px rgba(255, 225, 166, 0.85));
+}
+
+.instrument-card:hover .balance-outer-halo-ring,
+.instrument-card:focus-visible .balance-outer-halo-ring {
+  opacity: 0.52;
+  transform: scale(1.06);
+}
+
+.instrument-card:hover .balance-pivot-dot,
+.instrument-card:focus-visible .balance-pivot-dot {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px #ffe1a6);
+}
+
+/* --- 02 SONAR: Ping travels across water -> catches boat -> shadow darkens -> echo returns --- */
+.sonar-ping-pulse {
+  transform-box: view-box;
+  opacity: 0;
+}
+
+.sonar-echo-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.sonar-return-echo {
+  transform-box: view-box;
+  opacity: 0;
+}
+
+.sonar-shadow-cone {
+  transition: opacity 0.6s ease;
+  opacity: 0.65;
+}
+
+.sonar-target-boat {
+  transform-origin: 165px 52px;
+  transition: transform 0.5s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.5s ease;
+}
+
+.sonar-shadow-boat {
+  transition: opacity 0.5s ease;
+  opacity: 0.35;
+}
+
+.sonar-transducer {
+  transition: filter 0.4s ease, fill 0.4s ease;
+}
+
+.instrument-card:hover .sonar-ping-pulse,
+.instrument-card:focus-visible .sonar-ping-pulse {
+  animation: sonarPingTravel 2.4s ease-in-out infinite;
+}
+
+.instrument-card:hover .sonar-target-boat,
+.instrument-card:focus-visible .sonar-target-boat {
+  animation: sonarBoatCatch 2.4s ease-in-out infinite;
+}
+
+.instrument-card:hover .sonar-echo-ripple,
+.instrument-card:focus-visible .sonar-echo-ripple {
+  animation: sonarEchoBloom 2.4s ease-out infinite;
+}
+
+.instrument-card:hover .sonar-return-echo,
+.instrument-card:focus-visible .sonar-return-echo {
+  animation: sonarEchoReturn 2.4s ease-in-out infinite;
+}
+
+.instrument-card:hover .sonar-shadow-cone,
+.instrument-card:focus-visible .sonar-shadow-cone {
+  opacity: 1;
+}
+
+.instrument-card:hover .sonar-shadow-boat,
+.instrument-card:focus-visible .sonar-shadow-boat {
+  opacity: 0.16;
+}
+
+.instrument-card:hover .sonar-transducer,
+.instrument-card:focus-visible .sonar-transducer {
+  filter: drop-shadow(0 0 6px #a8ffeb);
+}
+
+@keyframes sonarPingTravel {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  38% {
+    transform: translateX(86px);
+    opacity: 1;
+  }
+  42%, 100% {
+    transform: translateX(86px);
+    opacity: 0;
+  }
+}
+
+@keyframes sonarBoatCatch {
+  0%, 36% {
+    transform: translateY(0);
+    filter: none;
+  }
+  42% {
+    transform: translateY(-3.5px) scale(1.06);
+    filter: drop-shadow(0 0 10px rgba(255, 216, 158, 0.95));
+  }
+  58% {
+    transform: translateY(-1.5px);
+    filter: drop-shadow(0 0 6px rgba(255, 216, 158, 0.6));
+  }
+  78%, 100% {
+    transform: translateY(0);
+    filter: none;
+  }
+}
+
+@keyframes sonarEchoBloom {
+  0%, 38% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  42% {
+    opacity: 0.95;
+  }
+  64% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes sonarEchoReturn {
+  0%, 42% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  48% {
+    opacity: 0.95;
+  }
+  78% {
+    transform: translateX(-86px);
+    opacity: 0.95;
+  }
+  84%, 100% {
+    transform: translateX(-86px);
+    opacity: 0;
+  }
+}
+
+/* --- 03 RESONANCE: Pure waves slide & swap crests and troughs on hover --- */
+.res-wave-crest {
+  transform: translateX(0);
+  transition: transform 0.75s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.45s ease;
+}
+
+.res-wave-trough {
+  transform: translateX(0);
+  transition: transform 0.75s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.45s ease;
+}
+
+.res-center-dot,
+.breathe-ring {
+  transform-box: view-box;
+  transform-origin: 140px 54px;
+  transition: transform 0.65s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.5s ease, stroke 0.5s ease;
+}
+
+/* On hover: Blue wave slides 56px right (crests become troughs), Orange wave slides 56px left (troughs become crests) */
+.instrument-card:hover .res-wave-crest,
+.instrument-card:focus-visible .res-wave-crest {
+  transform: translateX(56px);
+  filter: drop-shadow(0 0 7px rgba(155, 209, 229, 0.75));
+}
+
+.instrument-card:hover .res-wave-trough,
+.instrument-card:focus-visible .res-wave-trough {
+  transform: translateX(-56px);
+  filter: drop-shadow(0 0 7px rgba(255, 207, 122, 0.75));
+}
+
+.instrument-card:hover .res-center-dot,
+.instrument-card:focus-visible .res-center-dot {
+  transform: scale(1.35);
+  filter: drop-shadow(0 0 10px rgba(255, 244, 224, 0.95));
+}
+
+.instrument-card:hover .breathe-ring,
+.instrument-card:focus-visible .breathe-ring {
+  transform: scale(1.22);
+  stroke: #ffe9b5;
+  filter: drop-shadow(0 0 8px rgba(255, 225, 166, 0.85));
+}
+
+/* --- 04 ECHO: Single smooth continuous ping flying out and back without any pauses --- */
+.echo-traveling-ping {
+  opacity: 0;
+  offset-path: path("M 52,54 Q 140,18 228,54 Q 140,90 52,54 Z");
+  offset-distance: 0%;
+  pointer-events: none;
+}
+
+.echo-caller-beacon,
+.echo-cliff-beacon {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.echo-caller-ripple,
+.echo-cliff-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+}
+
+.instrument-card:hover .echo-traveling-ping,
+.instrument-card:focus-visible .echo-traveling-ping {
+  opacity: 1;
+  animation: echoContinuousFlight 2s linear infinite;
+}
+
+.instrument-card:hover .echo-caller-beacon,
+.instrument-card:focus-visible .echo-caller-beacon {
+  animation: echoBeaconPulseLeft 2s linear infinite;
+}
+
+.instrument-card:hover .echo-caller-ripple,
+.instrument-card:focus-visible .echo-caller-ripple {
+  animation: echoRippleLeft 2s ease-out infinite;
+}
+
+.instrument-card:hover .echo-cliff-beacon,
+.instrument-card:focus-visible .echo-cliff-beacon {
+  animation: echoBeaconPulseRight 2s linear infinite;
+}
+
+.instrument-card:hover .echo-cliff-ripple,
+.instrument-card:focus-visible .echo-cliff-ripple {
+  animation: echoRippleRight 2s ease-out infinite;
+}
+
+/* 100% smooth, continuous, zero-stop flight */
+@keyframes echoContinuousFlight {
+  0% {
+    offset-distance: 0%;
+    fill: #fff5d4;
+    filter: drop-shadow(0 0 7px #ffd978);
+  }
+  48% {
+    fill: #fff5d4;
+    filter: drop-shadow(0 0 7px #ffd978);
+  }
+  50% {
+    offset-distance: 50%;
+    fill: #ffeaf3;
+    filter: drop-shadow(0 0 8px #f9d6e6);
+  }
+  98% {
+    fill: #ffeaf3;
+    filter: drop-shadow(0 0 8px #f9d6e6);
+  }
+  100% {
+    offset-distance: 100%;
+    fill: #fff5d4;
+    filter: drop-shadow(0 0 7px #ffd978);
+  }
+}
+
+@keyframes echoBeaconPulseLeft {
+  0%, 100% {
+    transform: scale(1.35);
+    filter: drop-shadow(0 0 8px #ffd978);
+  }
+  10%, 90% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@keyframes echoRippleLeft {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.95;
+  }
+  24% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes echoBeaconPulseRight {
+  0%, 40%, 60%, 100% {
+    transform: scale(1);
+    filter: none;
+  }
+  50% {
+    transform: scale(1.35);
+    filter: drop-shadow(0 0 8px #f9d6e6);
+  }
+}
+
+@keyframes echoRippleRight {
+  0%, 46% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(0.8);
+  }
+  74% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Fallback for browsers without CSS offset-path */
+@supports not (offset-path: path("M 0,0")) {
+  .echo-traveling-ping {
+    transform: translate(52px, 54px);
+  }
+  .instrument-card:hover .echo-traveling-ping,
+  .instrument-card:focus-visible .echo-traveling-ping {
+    animation: echoContinuousFallback 2s linear infinite;
+  }
+  @keyframes echoContinuousFallback {
+    0% { transform: translate(52px, 54px); fill: #fff5d4; }
+    25% { transform: translate(140px, 18px); }
+    50% { transform: translate(228px, 54px); fill: #ffeaf3; }
+    75% { transform: translate(140px, 90px); }
+    100% { transform: translate(52px, 54px); fill: #fff5d4; }
+  }
+}
+
+/* --- 05 PRISM: Sunbeam aligns mirrors, travels along optical path & strikes sensor --- */
+.prism-beam-idle {
+  opacity: 0.35;
+  transition: opacity 0.45s ease;
+}
+
+.prism-beam-active {
+  opacity: 0;
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+
+.prism-traveling-photon {
+  opacity: 0;
+  offset-path: path("M 42,32 L 140,32 L 140,76 L 238,76");
+  offset-distance: 0%;
+  pointer-events: none;
+}
+
+.prism-mirror-1 {
+  transform-box: view-box;
+  transform-origin: 140px 32px;
+  transform: rotate(-18deg);
+  transition: transform 0.65s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.4s ease;
+}
+
+.prism-mirror-2 {
+  transform-box: view-box;
+  transform-origin: 140px 76px;
+  transform: rotate(20deg);
+  transition: transform 0.65s cubic-bezier(0.22, 1.35, 0.36, 1), filter 0.4s ease;
+}
+
+.prism-sensor-crystal {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 0.45s ease, filter 0.45s ease, transform 0.45s ease;
+}
+
+.prism-sensor-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+}
+
+.prism-sensor-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+}
+
+.prism-emitter-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: stroke 0.4s ease, transform 0.4s ease;
+}
+
+.instrument-card:hover .prism-beam-idle,
+.instrument-card:focus-visible .prism-beam-idle {
+  opacity: 0.1;
+}
+
+.instrument-card:hover .prism-beam-active,
+.instrument-card:focus-visible .prism-beam-active {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px rgba(255, 225, 166, 0.85));
+}
+
+.instrument-card:hover .prism-mirror-1,
+.instrument-card:focus-visible .prism-mirror-1,
+.instrument-card:hover .prism-mirror-2,
+.instrument-card:focus-visible .prism-mirror-2 {
+  transform: rotate(0deg);
+  filter: drop-shadow(0 0 6px rgba(255, 244, 224, 0.8));
+}
+
+.instrument-card:hover .prism-traveling-photon,
+.instrument-card:focus-visible .prism-traveling-photon {
+  opacity: 1;
+  animation: prismPhotonContinuous 1.15s linear infinite;
+}
+
+.instrument-card:hover .prism-sensor-crystal,
+.instrument-card:focus-visible .prism-sensor-crystal {
+  animation: prismSensorPulse 1.15s ease-in-out infinite;
+}
+
+.instrument-card:hover .prism-sensor-halo,
+.instrument-card:focus-visible .prism-sensor-halo {
+  animation: prismSensorHaloBloom 1.15s ease-out infinite;
+}
+
+.instrument-card:hover .prism-sensor-ripple,
+.instrument-card:focus-visible .prism-sensor-ripple {
+  animation: prismSensorRippleExpand 1.15s ease-out infinite;
+}
+
+.instrument-card:hover .prism-emitter-ring,
+.instrument-card:focus-visible .prism-emitter-ring {
+  stroke: #ffe1a6;
+  transform: scale(1.15);
+}
+
+@keyframes prismPhotonContinuous {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 8px #ffd978);
+  }
+  6% {
+    opacity: 1;
+  }
+  78% {
+    offset-distance: 100%;
+    opacity: 1;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 10px #ffe1a6);
+  }
+  84%, 100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes prismSensorPulse {
+  0%, 72% {
+    fill: #7ba591;
+    filter: none;
+    transform: scale(1);
+  }
+  78% {
+    fill: #bbf7db;
+    filter: drop-shadow(0 0 12px #9fe3c4);
+    transform: scale(1.22);
+  }
+  92% {
+    fill: #9fe3c4;
+    filter: drop-shadow(0 0 6px #9fe3c4);
+    transform: scale(1.06);
+  }
+  100% {
+    fill: #7ba591;
+    filter: none;
+    transform: scale(1);
+  }
+}
+
+@keyframes prismSensorHaloBloom {
+  0%, 74% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  78% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  96% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes prismSensorRippleExpand {
+  0%, 75% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  79% {
+    opacity: 0.9;
+  }
+  98% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@supports not (offset-path: path("M 0,0")) {
+  .prism-traveling-photon {
+    transform: translate(42px, 32px);
+  }
+  .instrument-card:hover .prism-traveling-photon,
+  .instrument-card:focus-visible .prism-traveling-photon {
+    animation: prismPhotonFallback 1.15s linear infinite;
+  }
+  @keyframes prismPhotonFallback {
+    0% { transform: translate(42px, 32px); opacity: 0; }
+    5% { opacity: 1; }
+    35% { transform: translate(140px, 32px); }
+    55% { transform: translate(140px, 76px); }
+    78% { transform: translate(238px, 76px); opacity: 1; }
+    84%, 100% { transform: translate(238px, 76px); opacity: 0; }
+  }
+}
+
+/* --- 06 KNOT: Tangled stars glide smoothly to equilibrium, clearing intersection noise --- */
+.knot-threads-tangled {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.knot-threads-untangled {
+  opacity: 0;
+  transition: opacity 0.6s ease, filter 0.6s ease;
+}
+
+.knot-star-glide-top {
+  transform: translate(37px, 13px);
+  transition: transform 0.72s cubic-bezier(0.22, 1.35, 0.36, 1);
+}
+
+.knot-star-glide-bottom {
+  transform: translate(-37px, -13px);
+  transition: transform 0.72s cubic-bezier(0.22, 1.35, 0.36, 1);
+}
+
+.knot-star {
+  transition: stroke 0.45s ease, filter 0.45s ease;
+}
+
+.knot-center-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.65s cubic-bezier(0.22, 1.35, 0.36, 1), fill 0.45s ease, filter 0.45s ease;
+}
+
+.knot-center-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.knot-star-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.knot-crossing-beacon {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.4s ease;
+}
+
+.knot-crossing-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.4s ease;
+  animation: knotNoisePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes knotNoisePulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.75;
+  }
+}
+
+.instrument-card:hover .knot-threads-tangled,
+.instrument-card:focus-visible .knot-threads-tangled {
+  opacity: 0;
+}
+
+.instrument-card:hover .knot-threads-untangled,
+.instrument-card:focus-visible .knot-threads-untangled {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(159, 227, 196, 0.85));
+}
+
+.instrument-card:hover .knot-star-glide-top,
+.instrument-card:focus-visible .knot-star-glide-top,
+.instrument-card:hover .knot-star-glide-bottom,
+.instrument-card:focus-visible .knot-star-glide-bottom {
+  transform: translate(0, 0);
+}
+
+.instrument-card:hover .knot-star,
+.instrument-card:focus-visible .knot-star {
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 6px #9fe3c4);
+}
+
+.instrument-card:hover .knot-center-star,
+.instrument-card:focus-visible .knot-center-star {
+  fill: #ffffff;
+  transform: scale(1.3);
+  filter: drop-shadow(0 0 10px #ffd978);
+}
+
+.instrument-card:hover .knot-center-halo,
+.instrument-card:focus-visible .knot-center-halo {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.instrument-card:hover .knot-star-ripple,
+.instrument-card:focus-visible .knot-star-ripple {
+  animation: knotRippleBloom 2.4s ease-out infinite;
+}
+
+.instrument-card:hover .knot-crossing-beacon,
+.instrument-card:focus-visible .knot-crossing-beacon,
+.instrument-card:hover .knot-crossing-pulse,
+.instrument-card:focus-visible .knot-crossing-pulse {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes knotRippleBloom {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  75% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- 07 CIRCUIT: Relay switch clicks into place, current flows & lantern illuminates --- */
+.circuit-conduit-active {
+  opacity: 0;
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+
+.circuit-spark-pulse {
+  opacity: 0;
+  offset-path: path("M 54,54 L 98,54 A 10 10 0 0 0 108 44 L 108 30 A 10 10 0 0 1 118 20 L 162 20 A 10 10 0 0 1 172 30 L 172 68 A 10 10 0 0 0 182 78 L 226 78");
+  offset-distance: 0%;
+  pointer-events: none;
+}
+
+.circuit-relay-switch {
+  transform-box: view-box;
+  transform-origin: 108px 37px;
+  transform: rotate(-90deg);
+  transition: transform 0.52s cubic-bezier(0.2, 1.4, 0.4, 1), filter 0.4s ease;
+}
+
+.circuit-lantern-body {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 0.45s ease, filter 0.45s ease, transform 0.45s ease;
+}
+
+.circuit-lantern-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+}
+
+.circuit-lantern-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+}
+
+.circuit-dynamo-ring {
+  transition: stroke 0.4s ease, filter 0.4s ease;
+}
+
+.circuit-dynamo-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.4s ease, fill 0.4s ease, filter 0.4s ease;
+}
+
+.instrument-card:hover .circuit-relay-switch,
+.instrument-card:focus-visible .circuit-relay-switch {
+  transform: rotate(0deg);
+  filter: drop-shadow(0 0 6px #ffffff);
+}
+
+.instrument-card:hover .circuit-conduit-active,
+.instrument-card:focus-visible .circuit-conduit-active {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px rgba(155, 209, 229, 0.95));
+}
+
+.instrument-card:hover .circuit-spark-pulse,
+.instrument-card:focus-visible .circuit-spark-pulse {
+  opacity: 1;
+  animation: circuitSparkContinuous 1.2s linear infinite;
+}
+
+.instrument-card:hover .circuit-lantern-body,
+.instrument-card:focus-visible .circuit-lantern-body {
+  animation: circuitLanternGlow 1.2s ease-in-out infinite;
+}
+
+.instrument-card:hover .circuit-lantern-halo,
+.instrument-card:focus-visible .circuit-lantern-halo {
+  animation: circuitLanternHaloBloom 1.2s ease-out infinite;
+}
+
+.instrument-card:hover .circuit-lantern-ripple,
+.instrument-card:focus-visible .circuit-lantern-ripple {
+  animation: circuitLanternRippleExpand 1.2s ease-out infinite;
+}
+
+.instrument-card:hover .circuit-dynamo-ring,
+.instrument-card:focus-visible .circuit-dynamo-ring {
+  stroke: #fff4e0;
+  filter: drop-shadow(0 0 8px #ffd978);
+}
+
+.instrument-card:hover .circuit-dynamo-core,
+.instrument-card:focus-visible .circuit-dynamo-core {
+  fill: #ffffff;
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 8px #ffd978);
+}
+
+@keyframes circuitSparkContinuous {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 8px #9bd1e5);
+  }
+  5% {
+    opacity: 1;
+  }
+  78% {
+    offset-distance: 100%;
+    opacity: 1;
+    fill: #ffffff;
+    filter: drop-shadow(0 0 10px #e8f8ff);
+  }
+  84%, 100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes circuitLanternGlow {
+  0% {
+    fill: #ffd978;
+    filter: drop-shadow(0 0 10px #ffd978);
+    transform: scale(1.08);
+  }
+  74% {
+    fill: #ffd978;
+    filter: drop-shadow(0 0 10px #ffd978);
+    transform: scale(1.08);
+  }
+  80% {
+    fill: #ffffff;
+    filter: drop-shadow(0 0 16px #fff4e0) drop-shadow(0 0 24px #ffd978);
+    transform: scale(1.28);
+  }
+  92% {
+    fill: #ffe1a6;
+    filter: drop-shadow(0 0 14px #ffd978);
+    transform: scale(1.14);
+  }
+  100% {
+    fill: #ffd978;
+    filter: drop-shadow(0 0 10px #ffd978);
+    transform: scale(1.08);
+  }
+}
+
+@keyframes circuitLanternHaloBloom {
+  0%, 72% {
+    opacity: 0.68;
+    transform: scale(0.96);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1.36);
+  }
+  94% {
+    opacity: 0.82;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 0.68;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes circuitLanternRippleExpand {
+  0%, 75% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  80% {
+    opacity: 0.95;
+  }
+  98% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@supports not (offset-path: path("M 0,0")) {
+  .circuit-spark-pulse {
+    transform: translate(54px, 54px);
+  }
+  .instrument-card:hover .circuit-spark-pulse,
+  .instrument-card:focus-visible .circuit-spark-pulse {
+    animation: circuitSparkFallback 1.2s linear infinite;
+  }
+  @keyframes circuitSparkFallback {
+    0% { transform: translate(54px, 54px); opacity: 0; }
+    5% { opacity: 1; }
+    22% { transform: translate(108px, 44px); }
+    35% { transform: translate(108px, 20px); }
+    50% { transform: translate(172px, 20px); }
+    64% { transform: translate(172px, 78px); }
+    78% { transform: translate(226px, 78px); opacity: 1; }
+    84%, 100% { transform: translate(226px, 78px); opacity: 0; }
+  }
+}
+
+/* --- 08 SPECTRUM: Starlight vials float in harmonic wave, sine curve shimmers & chimes sparkle --- */
+.spec-vial {
+  transform-box: view-box;
+  opacity: 0.6;
+  transform: translateY(0);
+  transition: transform 0.65s cubic-bezier(0.22, 1.35, 0.36, 1), opacity 0.5s ease, filter 0.5s ease;
+}
+
+/* Idle slight vertical displacement */
+.spec-vial-2 { transform: translateY(4px); }
+.spec-vial-3 { transform: translateY(-4px); }
+.spec-vial-4 { transform: translateY(5px); }
+.spec-vial-5 { transform: translateY(-3px); }
+.spec-vial-6 { transform: translateY(4px); }
+
+.instrument-card:hover .spec-vial,
+.instrument-card:focus-visible .spec-vial {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.instrument-card:hover .spec-vial-1,
+.instrument-card:focus-visible .spec-vial-1 {
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.0s;
+}
+
+.instrument-card:hover .spec-vial-2,
+.instrument-card:focus-visible .spec-vial-2 {
+  filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.12s;
+}
+
+.instrument-card:hover .spec-vial-3,
+.instrument-card:focus-visible .spec-vial-3 {
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.24s;
+}
+
+.instrument-card:hover .spec-vial-4,
+.instrument-card:focus-visible .spec-vial-4 {
+  filter: drop-shadow(0 0 8px rgba(45, 212, 191, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.36s;
+}
+
+.instrument-card:hover .spec-vial-5,
+.instrument-card:focus-visible .spec-vial-5 {
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.48s;
+}
+
+.instrument-card:hover .spec-vial-6,
+.instrument-card:focus-visible .spec-vial-6 {
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.60s;
+}
+
+.instrument-card:hover .spec-vial-7,
+.instrument-card:focus-visible .spec-vial-7 {
+  filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.85));
+  animation: specVialFloat 2.1s ease-in-out infinite 0.72s;
+}
+
+@keyframes specVialFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Consistent body structure so titles, descriptions, field notes & footers align across cards */
+.inst-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+}
+
+.inst-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inst-title-row h2 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-white);
+}
+
+.inst-tag {
+  font-family: var(--font-sans);
+  background: var(--card-accent-soft);
+  color: var(--card-accent);
+  border: 1px solid rgba(255, 244, 230, 0.12);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.inst-desc {
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+/* Poetic whisper under each instrument - aligned to bottom of body */
+.field-note {
+  margin-top: auto;
+  padding: 10px 14px;
+  background: rgba(255, 244, 230, 0.055);
+  border-left: 2px solid var(--card-accent);
+  border-radius: 0 12px 12px 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.48;
+  color: #fff0d8;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+}
+
+.inst-footer {
+  border-top-color: var(--border-hairline);
+  margin-top: 2px;
+  padding-top: 14px;
+}
+
+.cta-pill {
+  background: rgba(255, 244, 230, 0.12);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-white);
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  transition: all 0.3s ease;
+}
+
+.instrument-card:hover .cta-pill {
+  background: linear-gradient(135deg, #ffe1a6, #ffbf8a);
+  color: #3b2f5e;
+  border-color: transparent;
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(255, 207, 122, 0.45);
+}
+
+.inst-spec {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.hub-whisper {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 8px auto 0;
+  color: var(--text-white);
+  opacity: 0.92;
+  text-shadow: 0 2px 12px rgba(var(--well-rgb), 0.78), 0 1px 2px rgba(var(--well-rgb), 0.55);
+}
+
+/* --- 5. SOFT LIGHT RIPPLE ON EVERY TOUCH -------------------------------- */
+.light-ripple {
+  position: fixed;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 226, 160, 0.4) 0%,
+    rgba(255, 190, 170, 0.16) 50%,
+    transparent 78%
+  );
+  transform: translate(-50%, -50%) scale(0.2);
+  pointer-events: none;
+  animation: lightRippleExpand 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  z-index: 999;
+}
+
+@keyframes lightRippleExpand {
+  0%   { opacity: 0.95; transform: translate(-50%, -50%) scale(0.2); }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(2.6); }
+}
+
+/* --- 6. THE INSTRUMENT STAGE ------------------------------------------- */
+.game-view-container {
+  background: rgba(var(--card-rgb), 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 28px;
+  padding: 24px 28px 34px;
+  box-shadow: 0 20px 56px rgba(var(--well-rgb), 0.42), 0 0 40px rgba(255, 207, 160, 0.08);
+  position: relative;
+}
+
+.game-topbar {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-hairline);
+  margin-bottom: 20px;
+}
+
+.text-back-btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.text-back-btn:hover { color: var(--gold-accent); }
+
+.mono-seed-tag {
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+}
+
+.instrument-lore-banner {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 217, 160, 0.08);
+  border: 1px solid rgba(255, 217, 160, 0.2);
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 22px;
+}
+
+.lore-left { display: flex; align-items: center; gap: 14px; }
+
+.lore-lamp {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 12px 2px rgba(255, 207, 122, 0.7);
+  animation: filamentGlow 3s ease-in-out infinite alternate;
+}
+
+.lore-text {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text-white);
+}
+
+.lore-coords {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+
+/* --- 6. THE INSTRUMENT STAGE: FULL OBSERVATORY THEME HARMONIZATION ---- */
+.game-view-container {
+  background: rgba(var(--card-rgb), 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 28px;
+  padding: 24px 28px 34px;
+  box-shadow: 0 24px 64px rgba(var(--well-rgb), 0.48), 0 0 40px rgba(255, 207, 160, 0.08);
+  position: relative;
+}
+
+.game-topbar {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-hairline);
+  margin-bottom: 20px;
+}
+
+.text-back-btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.text-back-btn:hover { color: var(--gold-accent); }
+
+.mono-seed-tag {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.instrument-lore-banner {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 217, 160, 0.08);
+  border: 1px solid rgba(255, 217, 160, 0.2);
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 22px;
+}
+
+.lore-left { display: flex; align-items: center; gap: 14px; }
+
+.lore-lamp {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 12px 2px rgba(255, 207, 122, 0.7);
+  animation: filamentGlow 3s ease-in-out infinite alternate;
+}
+
+.lore-text {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text-white);
+}
+
+.lore-coords {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+
+.game-panel {
+  background: rgba(var(--well-rgb), 0.42);
+  border: 1px solid var(--border-hairline);
+  border-radius: 20px;
+}
+
+/* ================== GAME 1: DENGE (BALANCE) ================== */
+.denge-board-3d {
+  background: rgba(var(--well-rgb), 0.72) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 20px 50px rgba(var(--well-rgb), 0.6), inset 0 0 20px rgba(255, 207, 122, 0.04) !important;
+}
+
+.denge-board-3d.board-locked {
+  border-color: var(--amber) !important;
+  box-shadow: 0 20px 50px rgba(var(--well-rgb), 0.6), 0 0 24px rgba(255, 207, 122, 0.25) !important;
+}
+
+.denge-grid.grid-5x5 {
+  grid-template-columns: repeat(5, var(--denge-cell-size)) !important;
+  grid-template-rows: repeat(5, var(--denge-cell-size)) !important;
+  gap: var(--denge-gap) !important;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.denge-cell {
+  width: var(--denge-cell-size) !important;
+  height: var(--denge-cell-size) !important;
+  border-radius: 12px;
+  transition: filter 0.15s, background-color 0.2s;
+}
+
+.denge-cell:hover {
+  filter: brightness(1.22);
+}
+
+.pivot-center-icon {
+  font-size: 20px;
+  color: var(--amber);
+  opacity: 0.85;
+  filter: drop-shadow(0 0 6px rgba(255, 207, 122, 0.6));
+}
+
+.com-cursor {
+  border: 1.5px dashed rgba(255, 207, 122, 0.7);
+}
+
+.com-cursor.centered {
+  border-color: var(--amber);
+  border-style: solid;
+  box-shadow: 0 0 20px rgba(255, 207, 122, 0.75), inset 0 0 10px rgba(255, 207, 122, 0.3);
+}
+
+/* Weight Tokens: Radiant celestial stone & polished brass */
+.weight-token {
+  background: #fff8ef !important;
+  color: #1f112e !important;
+  border: 2px solid #ffd9a0 !important;
+  box-shadow: 0 4px 14px rgba(16, 8, 24, 0.6), 0 0 10px rgba(255, 217, 160, 0.4) !important;
+  font-weight: 700;
+}
+
+.weight-token.anchor-weight {
+  background: linear-gradient(135deg, #ffe082 0%, #ffb300 100%) !important;
+  color: #2b1404 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.8), 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+}
+
+.weight-token.conflict {
+  background: #f43f5e !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 18px rgba(244, 63, 94, 0.85) !important;
+}
+
+/* Bubble Level Tube: Antique brass & glowing amber liquid */
+.bubble-tube {
+  background: rgba(var(--well-rgb), 0.85) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.bubble-dot {
+  background: #fff6e5 !important;
+  box-shadow: 0 0 10px rgba(255, 207, 122, 0.9) !important;
+}
+
+.bubble-tube.balanced .bubble-dot {
+  background: var(--amber) !important;
+  box-shadow: 0 0 16px var(--amber), 0 0 28px rgba(255, 207, 122, 0.6) !important;
+}
+
+/* ================== GAME 2: SONAR (ACOUSTIC RADAR) ================== */
+.sonar-wave-strip {
+  background: rgba(var(--well-rgb), 0.72) !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+  margin: 0 auto 4px auto;
+}
+
+#sonar-osc-canvas,
+#sonar-oscilloscope {
+  width: 100% !important;
+  max-width: 380px !important;
+  height: auto !important;
+  aspect-ratio: 380 / 44;
+  display: block;
+  margin: 0 auto;
+}
+
+.sonar-wave-caption {
+  color: var(--text-muted);
+}
+
+.sonar-tx-btn {
+  background: rgba(255, 244, 230, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-white);
+  border-radius: 11px;
+  font-weight: 600;
+}
+
+.sonar-tx-btn:hover {
+  background: rgba(45, 212, 191, 0.22);
+  color: #ffffff;
+  border-color: #2dd4bf;
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.4);
+}
+
+.sonar-tx-btn.pinged {
+  background: rgba(45, 212, 191, 0.28);
+  border-color: #2dd4bf;
+  color: #2dd4bf;
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.45);
+}
+
+.sonar-tx-btn.active {
+  background: rgba(251, 191, 36, 0.35);
+  border-color: #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.65);
+}
+
+.sonar-tx-row {
+  grid-template-columns: var(--sonar-tx-size) repeat(6, var(--sonar-cell-size)) var(--sonar-tx-size) !important;
+  gap: var(--sonar-gap) !important;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.sonar-middle-row {
+  gap: var(--sonar-gap) !important;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.sonar-tx-col {
+  grid-template-rows: repeat(6, var(--sonar-cell-size)) !important;
+  width: var(--sonar-tx-size) !important;
+  gap: var(--sonar-gap) !important;
+}
+
+.sonar-tx-col .sonar-tx-btn {
+  height: var(--sonar-cell-size) !important;
+}
+
+.sonar-grid {
+  grid-template-columns: repeat(6, var(--sonar-cell-size)) !important;
+  grid-template-rows: repeat(6, var(--sonar-cell-size)) !important;
+  gap: var(--sonar-gap) !important;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.sonar-cell {
+  width: var(--sonar-cell-size) !important;
+  height: var(--sonar-cell-size) !important;
+  border-radius: 12px;
+  background: rgba(var(--well-rgb), 0.7);
+  border: 1px solid rgba(255, 236, 214, 0.12);
+  transition: all 0.15s ease;
+}
+
+.sonar-cell:hover {
+  background: rgba(var(--card-rgb), 0.75);
+  filter: brightness(1.25);
+}
+
+.sonar-cell.in-ray {
+  box-shadow: inset 0 0 0 2px rgba(45, 212, 191, 0.65), 0 0 16px rgba(45, 212, 191, 0.3);
+}
+
+.sonar-cell.marked-sub {
+  background: rgba(251, 191, 36, 0.28) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), inset 0 0 12px rgba(251, 191, 36, 0.25) !important;
+}
+
+.sonar-cell.marked-water .cell-cross {
+  color: #38bdf8 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+.cell-cross {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ================== GAME 3: RESONANCE (PHASE MATRIX) ================== */
+.resonance-grid-clean {
+  grid-template-columns: repeat(6, var(--res-cell-size)) !important;
+  grid-template-rows: repeat(6, var(--res-cell-size)) !important;
+  gap: var(--res-gap) !important;
+  width: fit-content;
+  margin: 0 auto;
+  background: rgba(var(--well-rgb), 0.5);
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 16px 40px rgba(var(--well-rgb), 0.5);
+}
+
+.res-cell {
+  width: var(--res-cell-size) !important;
+  height: var(--res-cell-size) !important;
+  background: rgba(var(--well-rgb), 0.65);
+  border: 1.5px solid rgba(255, 236, 214, 0.1);
+  border-radius: 14px;
+  transition: all 0.18s ease;
+}
+
+.res-cell:hover {
+  background: rgba(var(--card-rgb), 0.75);
+  border-color: var(--border-warm);
+}
+
+.res-cell.is-plus {
+  background: rgba(56, 189, 248, 0.24);
+  border-color: rgba(56, 189, 248, 0.75);
+  box-shadow: inset 0 0 14px rgba(56, 189, 248, 0.2);
+}
+
+.res-cell.is-minus {
+  background: rgba(251, 146, 60, 0.24);
+  border-color: rgba(251, 146, 60, 0.75);
+  box-shadow: inset 0 0 14px rgba(251, 146, 60, 0.2);
+}
+
+.res-cell.cell-conflict {
+  border-color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.28) !important;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.5) !important;
+}
+
+.res-disc.plus {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.45) 0%, rgba(2, 132, 199, 0.6) 100%);
+  color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+  border: 1.5px solid #7dd3fc;
+}
+
+.res-disc.minus {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.45) 0%, rgba(234, 88, 12, 0.6) 100%);
+  color: #fb923c;
+  box-shadow: 0 0 16px rgba(251, 146, 60, 0.6);
+  border: 1.5px solid #fed7aa;
+}
+
+.res-disc.locked {
+  border: 2px solid rgba(255, 236, 214, 0.85);
+  box-shadow: 0 0 14px rgba(255, 236, 214, 0.4);
+}
+
+.edge-clue {
+  background: rgba(var(--well-rgb), 0.95);
+  border: 1.5px solid var(--border-subtle);
+  color: var(--text-white);
+  box-shadow: 0 4px 12px rgba(18, 10, 26, 0.5);
+  font-weight: 700;
+}
+
+.edge-clue.eq {
+  border-color: #c084fc;
+  color: #c084fc;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.6);
+}
+
+.edge-clue.opp {
+  border-color: #fb7185;
+  color: #fb7185;
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.6);
+}
+
+.res-hint-banner {
+  background: rgba(var(--well-rgb), 0.85);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-white);
+  backdrop-filter: blur(8px);
+}
+
+.res-hint-banner.active {
+  background: rgba(255, 207, 122, 0.14);
+  border-color: rgba(255, 207, 122, 0.45);
+  color: var(--amber);
+  box-shadow: 0 0 20px rgba(255, 207, 122, 0.2);
+}
+
+.res-hint-banner.error {
+  background: rgba(244, 169, 160, 0.14);
+  border-color: rgba(244, 169, 160, 0.45);
+  color: var(--text-white);
+}
+
+/* ================== GAME 4: ECHO (EKO / VALLEY BELL) ================== */
+.eko-sculpt-card {
+  background: rgba(var(--well-rgb), 0.42);
+  border: 1px solid var(--border-hairline);
+  border-radius: 22px;
+}
+
+.eko-listen-pill {
+  background: rgba(255, 244, 230, 0.06);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-white);
+}
+
+.eko-listen-pill:hover:not(.disabled) {
+  background: rgba(255, 244, 230, 0.14);
+  border-color: var(--border-warm);
+}
+
+.outer-target-ring {
+  border: 2px dashed rgba(56, 189, 248, 0.65) !important;
+}
+
+.inner-user-ring {
+  border: 2px solid rgba(251, 191, 36, 0.45) !important;
+}
+
+.inner-user-ring.recorded {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 22px rgba(251, 191, 36, 0.55) !important;
+}
+
+.eko-orb-stage.target-ring-ping .outer-target-ring,
+.eko-orb-stage.target-ring-echo .outer-target-ring {
+  border-color: #38bdf8 !important;
+  border-style: solid !important;
+  transform: scale(1.06);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.75) !important;
+}
+
+.eko-orb-stage.user-ring-ping .inner-user-ring,
+.eko-orb-stage.user-ring-echo .inner-user-ring {
+  border-color: #fbbf24 !important;
+  transform: scale(1.06);
+  box-shadow: 0 0 35px rgba(251, 191, 36, 0.75) !important;
+}
+
+.eko-tactile-pad {
+  background: radial-gradient(circle at 50% 30%, #452b57 0%, #20132b 100%) !important;
+  border: 2px solid rgba(255, 217, 160, 0.45) !important;
+  box-shadow: 0 14px 36px rgba(16, 8, 24, 0.65), 0 0 24px rgba(255, 207, 122, 0.2) !important;
+}
+
+.eko-tactile-pad:hover {
+  border-color: #ffd9a0 !important;
+  box-shadow: 0 16px 40px rgba(16, 8, 24, 0.7), 0 0 32px rgba(255, 207, 122, 0.35) !important;
+}
+
+.eko-tactile-pad.holding {
+  border-color: #ffb703 !important;
+  box-shadow: 0 0 55px rgba(255, 183, 3, 0.8), inset 0 0 30px rgba(255, 183, 3, 0.4) !important;
+}
+
+.pad-icon {
+  color: #ffb703 !important;
+  filter: drop-shadow(0 0 8px rgba(255, 183, 3, 0.75));
+}
+
+.eko-tactile-pad:hover {
+  border-color: var(--border-warm);
+}
+
+.eko-tactile-pad.holding {
+  border-color: var(--amber);
+  box-shadow: 0 0 45px rgba(255, 207, 122, 0.5), inset 0 0 22px rgba(255, 207, 122, 0.25);
+}
+
+.pad-icon {
+  color: var(--amber);
+}
+
+.eko-reveal-box {
+  background: rgba(var(--well-rgb), 0.72);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+}
+
+/* ================== SHARED HUD CHIPS & BUTTONS ================== */
+.denge-regions-bar {
+  gap: 8px;
+}
+
+.region-chip {
+  background: rgba(var(--well-rgb), 0.6);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+
+.region-chip.done {
+  border-color: rgba(255, 207, 122, 0.45);
+  background: rgba(255, 207, 122, 0.08);
+  color: var(--text-white);
+}
+
+.region-chip.over {
+  border-color: var(--coral);
+  color: var(--coral);
+  background: rgba(244, 169, 160, 0.08);
+}
+
+.btn-secondary {
+  background: rgba(255, 244, 230, 0.08);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-white);
+  border-radius: 999px;
+  transition: all 0.18s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 244, 230, 0.16);
+  border-color: var(--border-subtle);
+}
+
+/* ================== THEMED HINT SYSTEM & ANIMATIONS ================== */
+.btn-hint {
+  background: rgba(255, 207, 122, 0.12) !important;
+  border: 1px solid rgba(255, 207, 122, 0.38) !important;
+  color: var(--gold-accent) !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: all 0.2s ease;
+}
+
+.btn-hint:hover {
+  background: rgba(255, 207, 122, 0.22) !important;
+  border-color: rgba(255, 207, 122, 0.7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(255, 207, 122, 0.35);
+}
+
+.btn-hint .btn-cooldown-wipe {
+  background: linear-gradient(180deg, rgba(255, 207, 122, 0.38) 0%, rgba(217, 119, 6, 0.18) 100%) !important;
+  border-top: 2px solid #ffd9a0 !important;
+  box-shadow: 0 0 14px rgba(255, 207, 122, 0.6) !important;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.btn-hint.cooldown-active {
+  opacity: 0.65;
+  cursor: not-allowed !important;
+}
+
+.status-pill.error {
+  background: rgba(244, 169, 160, 0.2);
+  color: var(--coral);
+}
+
+.status-pill.solved {
+  background: rgba(255, 207, 122, 0.2);
+  color: var(--amber);
+}
+
+/* 1. Celestial Hint Glow: warm candlelit starlight bloom (replaces harsh scale pulse) */
+.cell-hint-glow {
+  border-color: #ffd9a0 !important;
+  box-shadow: 0 0 0 2px rgba(255, 217, 160, 0.7),
+              0 0 24px rgba(255, 207, 122, 0.75),
+              inset 0 0 14px rgba(255, 207, 122, 0.35) !important;
+  animation: celestialHintGlow 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate !important;
+  z-index: 10 !important;
+}
+
+@keyframes celestialHintGlow {
+  0% {
+    border-color: rgba(255, 217, 160, 0.6);
+    box-shadow: 0 0 0 1.5px rgba(255, 217, 160, 0.5),
+                0 0 14px rgba(255, 207, 122, 0.45),
+                inset 0 0 8px rgba(255, 207, 122, 0.2);
+    filter: brightness(1.05);
+  }
+  100% {
+    border-color: #ffcf7a;
+    box-shadow: 0 0 0 2.5px #ffd9a0,
+                0 0 32px rgba(255, 207, 122, 0.9),
+                inset 0 0 18px rgba(255, 207, 122, 0.45);
+    filter: brightness(1.28);
+  }
+}
+
+/* 2. Soft Peach Whisper for errors (no violent 4px shaking) */
+.cell-hint-error {
+  border-color: var(--coral) !important;
+  box-shadow: 0 0 0 2px rgba(244, 169, 160, 0.75),
+              0 0 22px rgba(244, 169, 160, 0.6) !important;
+  animation: gentlePeachWhisper 2.2s ease-in-out infinite alternate !important;
+  z-index: 10 !important;
+}
+
+@keyframes gentlePeachWhisper {
+  0%   { box-shadow: 0 0 0 1.5px rgba(244, 169, 160, 0.45), 0 0 12px rgba(244, 169, 160, 0.3); }
+  100% { box-shadow: 0 0 0 2.5px rgba(244, 169, 160, 0.85), 0 0 26px rgba(244, 169, 160, 0.7); }
+}
+
+/* Ear Mode toggle button in action bar */
+.btn-ear-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: all 0.18s ease;
+}
+
+.btn-ear-toggle:hover {
+  background: rgba(255, 244, 230, 0.14) !important;
+  border-color: var(--border-warm) !important;
+  color: var(--text-white) !important;
+}
+
+.btn-ear-toggle.active {
+  background: rgba(45, 212, 191, 0.22) !important;
+  border-color: #2dd4bf !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.35);
+}
+
+.btn-ear-toggle.active .ear-icon {
+  filter: drop-shadow(0 0 6px #2dd4bf);
+}
+
+.sonar-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-bottom: 8px;
+}
+
+/* --- 7. BUTTONS & MODALS ----------------------------------------------- */
+.mode-pill-toggle {
+  background: rgba(var(--well-rgb), 0.48);
+  border: 1px solid var(--border-hairline);
+}
+
+.mode-pill-opt { font-family: var(--font-sans); }
+
+.mode-pill-opt.active {
+  background: rgba(255, 244, 230, 0.16);
+  color: var(--text-white);
+  border: 1px solid rgba(255, 236, 214, 0.28);
+  box-shadow: 0 2px 10px rgba(18, 16, 56, 0.3);
+}
+
+.subtle-pill-btn { font-family: var(--font-sans); color: var(--text-secondary); }
+.subtle-pill-btn:hover { color: var(--gold-accent); }
+
+.white-pill-btn {
+  background: var(--text-white);
+  color: #3b2f5e;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(255, 244, 230, 0.25);
+}
+
+.white-pill-btn:hover {
+  background: #ffffff;
+  box-shadow: 0 0 28px rgba(255, 244, 230, 0.42);
+}
+
+.accent-pill-btn {
+  background: linear-gradient(135deg, #ffe1a6, #ffbf8a);
+  color: #3b2f5e;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  border: none;
+}
+
+.modal-backdrop {
+  background: rgba(var(--well-rgb), 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-sizing: border-box;
+}
+
+.modal-card {
+  background: rgba(var(--card-rgb), 0.96);
+  border: 1px solid var(--border-warm);
+  border-radius: 26px;
+  box-shadow: 0 24px 64px rgba(var(--well-rgb), 0.58), 0 0 50px rgba(255, 207, 160, 0.12);
+  width: 100%;
+  max-width: min(480px, 100%);
+  box-sizing: border-box;
+}
+
+.modal-card h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 27px;
+  letter-spacing: 0;
+}
+
+.modal-close-btn { color: var(--text-secondary); }
+
+.guide-kicker {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-accent);
+}
+
+.guide-sub {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 6px 0 18px;
+}
+
+.howto-step-card {
+  background: rgba(255, 244, 230, 0.06);
+  border: 1px solid var(--border-hairline);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.howto-step-icon {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--amber);
+  background: rgba(255, 207, 122, 0.12);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.howto-step-text h4 { font-size: 14px; font-weight: 600; color: var(--text-white); margin-bottom: 4px; }
+.howto-step-text p { font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+
+.win-lead {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.win-note {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.win-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-right: 36px; /* keep clear of the close button */
+}
+
+/* ================== WIN MODAL: THEMED SOLUTION SHOWCASE ================== */
+.win-matrix-showcase {
+  background: radial-gradient(circle at 50% 50%, rgba(58, 36, 76, 0.75) 0%, rgba(28, 16, 38, 0.92) 100%) !important;
+  border: 1px solid rgba(255, 217, 160, 0.28) !important;
+  border-radius: 20px !important;
+  padding: 18px 20px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 18px 0 20px 0 !important;
+  box-shadow: inset 0 3px 18px rgba(14, 6, 22, 0.6), 0 0 32px rgba(255, 207, 122, 0.08) !important;
+}
+
+.win-visual-matrix {
+  display: grid !important;
+  gap: 7px !important;
+  width: fit-content !important;
+  margin: 0 auto !important;
+}
+
+.win-vcell {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 244, 230, 0.05) !important;
+  border: 1px solid rgba(255, 236, 214, 0.12) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+/* Empty cells: quiet, dark translucent paper well */
+.win-vcell.empty {
+  background: rgba(255, 244, 230, 0.04) !important;
+  border-color: rgba(255, 236, 214, 0.09) !important;
+  color: transparent !important;
+}
+
+/* Active / Solved / Target cells: warm radiant golden amber starlight */
+.win-vcell.active,
+.win-vcell.hit,
+.win-vcell.green {
+  background: linear-gradient(135deg, #ffd978 0%, #ffaa33 100%) !important;
+  border: 1px solid #fff2b8 !important;
+  box-shadow: 0 0 14px rgba(255, 179, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  color: #2b1404 !important;
+  font-weight: 700;
+}
+
+/* Fulcrum / Center Pivot cell */
+.win-vcell.pivot,
+.win-vcell.center {
+  background: rgba(255, 207, 122, 0.24) !important;
+  border: 1.5px solid #ffcf7a !important;
+  color: #ffcf7a !important;
+  box-shadow: 0 0 14px rgba(255, 207, 122, 0.6) !important;
+  font-weight: 700;
+}
+
+/* Resonance Blue Crest phase */
+.win-vcell.blue,
+.win-vcell.cyan {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+  border: 1px solid #bae6fd !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.65) !important;
+  color: #ffffff !important;
+}
+
+/* Resonance Orange Trough phase */
+.win-vcell.amber,
+.win-vcell.orange {
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
+  border: 1px solid #fed7aa !important;
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.65) !important;
+  color: #ffffff !important;
+}
+
+/* Sonar acoustic ping ray */
+.win-vcell.ping {
+  background: rgba(45, 212, 191, 0.25) !important;
+  border: 1px solid rgba(45, 212, 191, 0.6) !important;
+  color: #2dd4bf !important;
+}
+
+.win-pill-soft {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--gold-accent);
+  background: rgba(255, 217, 160, 0.12);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 217, 160, 0.2);
+}
+
+/* ================== WIN MODAL: TODAY'S INSTRUMENTS STRIP ================== */
+.win-daily-progress-block {
+  background: rgba(var(--well-rgb), 0.58) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 20px !important;
+}
+
+.win-progress-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.win-progress-head span {
+  font-weight: 500;
+  color: var(--text-white);
+}
+
+.win-progress-head strong {
+  color: var(--gold-accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.win-mod-pills-row {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+.win-mod-pill {
+  background: rgba(255, 244, 230, 0.06) !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: 10px !important;
+  padding: 7px 5px !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  cursor: pointer;
+  white-space: nowrap !important; /* CRITICAL: Never break text onto 2 lines! */
+  transition: all 0.18s ease;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.win-mod-pill span {
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.win-mod-pill .win-mod-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  flex-shrink: 0;
+}
+
+.win-mod-pill:hover {
+  background: rgba(255, 244, 230, 0.14) !important;
+  border-color: var(--border-warm) !important;
+  color: var(--text-white) !important;
+}
+
+.win-mod-pill.done {
+  border-color: rgba(255, 207, 122, 0.5) !important;
+  background: rgba(255, 207, 122, 0.1) !important;
+  color: var(--text-white) !important;
+}
+
+.win-mod-pill.done .win-mod-dot {
+  background: #ffb703 !important;
+  box-shadow: 0 0 8px #ffb703 !important;
+}
+
+.win-mod-pill.current {
+  border-color: var(--gold-accent) !important;
+  background: rgba(255, 217, 160, 0.14) !important;
+  box-shadow: 0 0 12px rgba(255, 217, 160, 0.3) !important;
+}
+
+@media (max-width: 440px) {
+  .win-mod-pills-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+
+/* --- 8. RESPONSIVE DESIGN & MOTION PREFERENCES -------------------------- */
+
+/* Global viewport boundaries & mobile smoothness */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, .nav-mod-btn, .icon-btn, .denge-cell, .sonar-cell, .res-cell, .eko-tactile-pad {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ================= BREAKPOINT 1: <= 860px (Tablets & Small Laptops) ================= */
+@media (max-width: 860px) {
+  .studio-shell {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    gap: 24px;
+  }
+  
+  .studio-nav {
+    gap: 12px;
+    padding-bottom: 14px;
+  }
+  
+  .nav-left { gap: 12px; }
+  .nav-modules { gap: 6px; }
+  .nav-mod-btn {
+    font-size: 12px;
+    padding: 5px 9px;
+    gap: 4px;
+  }
+  
+  .daily-clock-pill .clock-sep,
+  .daily-clock-pill #daily-countdown-text {
+    display: none;
+  }
+  
+  .instrument-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+/* ================= BREAKPOINT 2: <= 720px (Portrait Tablets & Phablets) ================= */
+@media (max-width: 720px) {
+  .studio-shell {
+    padding: 16px 14px 100px;
+    gap: 20px;
+  }
+  
+  .studio-nav {
+    gap: 8px;
+    padding-bottom: 12px;
+  }
+  
+  .nav-left { gap: 8px; }
+  
+  /* Directly hide module buttons on smaller screens */
+  .nav-modules {
+    display: none !important;
+  }
+  
+  .hub-headline {
+    font-size: clamp(24px, 5.5vw, 32px);
+  }
+  
+  .hub-subline {
+    font-size: 14px;
+  }
+  
+  .game-view-container {
+    padding: 18px 14px 26px;
+    border-radius: 22px;
+  }
+  
+  .instrument-card {
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+}
+
+/* ================= BREAKPOINT 3: <= 640px (Mobile Phones) ================= */
+@media (max-width: 640px) {
+  :root {
+    --denge-cell-size: clamp(44px, 13vw, 54px);
+    --denge-gap: 5px;
+    
+    --sonar-cell-size: clamp(38px, 10.5vw, 46px);
+    --sonar-tx-size: clamp(26px, 7vw, 32px);
+    --sonar-gap: 4px;
+    
+    --res-cell-size: clamp(40px, 11vw, 48px);
+    --res-gap: 4px;
+  }
+  
+  .daily-clock-pill {
+    padding: 4px 7px;
+    font-size: 11px;
+    gap: 5px;
+  }
+  
+  .nav-right { gap: 6px; }
+  
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  /* Hub View */
+  .obs-station-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    gap: 6px;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .hub-intro {
+    gap: 16px;
+  }
+  
+  .daily-progress-summary {
+    font-size: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .diagram-svg {
+    height: 90px;
+  }
+  
+  .inst-title-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .inst-title-row h2 {
+    font-size: 21px;
+  }
+  
+  .inst-desc {
+    font-size: 13.5px;
+  }
+  
+  .inst-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .cta-pill {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+  
+  /* Game View Container */
+  .game-view-container {
+    padding: 14px 10px 22px;
+    border-radius: 18px;
+  }
+  
+  .game-topbar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  
+  .game-seed-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .text-back-btn {
+    font-size: 12.5px;
+    align-self: flex-start;
+  }
+  
+  .instrument-lore-banner {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .lore-text {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  .lore-coords {
+    font-size: 10.5px;
+  }
+  
+  /* Game 1: Denge */
+  .denge-board-3d {
+    padding: 10px 8px !important;
+  }
+  .com-cursor {
+    width: calc(var(--denge-cell-size) * 0.44) !important;
+    height: calc(var(--denge-cell-size) * 0.44) !important;
+  }
+  .weight-token {
+    width: calc(var(--denge-cell-size) * 0.52) !important;
+    height: calc(var(--denge-cell-size) * 0.52) !important;
+    font-size: 11px !important;
+  }
+  .bubble-tube {
+    width: 100px !important;
+    height: 36px !important;
+  }
+  .denge-regions-bar {
+    gap: 5px;
+    justify-content: center;
+  }
+  .region-chip {
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+  }
+  .denge-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  /* Game 2: Sonar */
+  .sonar-sculpt-wrap {
+    padding: 8px 4px !important;
+    align-items: center;
+  }
+  .sonar-tx-row .sonar-tx-btn {
+    height: 30px !important;
+    font-size: 10.5px !important;
+  }
+  .sonar-tx-col .sonar-tx-btn {
+    font-size: 10.5px !important;
+  }
+  .sonar-hud-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  #sonar-osc-canvas,
+  #sonar-oscilloscope {
+    width: 100% !important;
+    max-width: 420px !important;
+    height: auto !important;
+    aspect-ratio: 380 / 44;
+  }
+  
+  /* Game 3: Resonance */
+  .resonance-grid-clean {
+    padding: 10px 8px !important;
+  }
+  .res-disc {
+    width: calc(var(--res-cell-size) * 0.6) !important;
+    height: calc(var(--res-cell-size) * 0.6) !important;
+  }
+  .edge-clue {
+    width: 15px !important;
+    height: 15px !important;
+    font-size: 8px !important;
+  }
+  .h-clue { right: -8px !important; }
+  .v-clue { bottom: -8px !important; }
+  .res-hint-banner {
+    font-size: 11.5px !important;
+    padding: 7px 12px !important;
+    max-width: 100% !important;
+  }
+  
+  /* Game 4: Eko */
+  .eko-sculpt-card {
+    padding: 16px 12px !important;
+    gap: 16px !important;
+    max-width: 100% !important;
+  }
+  .eko-orb-stage {
+    width: clamp(170px, 48vw, 210px) !important;
+    height: clamp(170px, 48vw, 210px) !important;
+  }
+  .eko-tactile-pad {
+    width: clamp(120px, 34vw, 146px) !important;
+    height: clamp(120px, 34vw, 146px) !important;
+    padding: 10px !important;
+  }
+  .pad-title { font-size: 13.5px !important; }
+  .pad-sub { font-size: 9.5px !important; }
+  .pad-icon { font-size: 18px !important; }
+  .eko-listen-pill {
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+  }
+  
+  /* Modals */
+  .modal-backdrop {
+    padding: 14px;
+  }
+  .modal-card {
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+    max-height: calc(100vh - 28px);
+  }
+  .modal-card h2 {
+    font-size: 22px !important;
+  }
+  .win-card-sleek {
+    padding: 20px 14px 18px !important;
+    border-radius: 20px !important;
+  }
+  .win-hero-title {
+    font-size: 22px !important;
+  }
+  .win-stats-strip {
+    gap: 6px !important;
+  }
+  .win-stat-box {
+    padding: 8px 6px !important;
+  }
+  .win-stat-val {
+    font-size: 14px !important;
+  }
+  .win-stat-lbl {
+    font-size: 9px !important;
+  }
+  .win-matrix-showcase {
+    padding: 10px 6px !important;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .win-modal-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .win-modal-actions button {
+    width: 100%;
+  }
+  
+  /* Popover */
+  .ambient-popover {
+    right: -24px;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .ambient-volume-slider {
+    width: 60px;
+  }
+}
+
+/* ================= BREAKPOINT 4: <= 400px (Compact Mobile Phones) ================= */
+@media (max-width: 400px) {
+  :root {
+    --denge-cell-size: clamp(38px, 12.5vw, 42px);
+    --denge-gap: 4px;
+    
+    --sonar-cell-size: clamp(32px, 9.8vw, 36px);
+    --sonar-tx-size: 24px;
+    --sonar-gap: 3px;
+    
+    --res-cell-size: clamp(33px, 10.5vw, 38px);
+    --res-gap: 3px;
+  }
+  
+  .studio-shell {
+    padding: 12px 10px 80px;
+    gap: 16px;
+  }
+  
+  .studio-nav {
+    gap: 6px;
+    padding-bottom: 10px;
+  }
+  
+  .nav-left { gap: 6px; }
+  
+  .brand-name { font-size: 13.5px; }
+  .brand-glyph { width: 14px; height: 14px; }
+  
+  /* Keep clock pill compact on narrow screens */
+  .daily-clock-pill {
+    padding: 3px 6px;
+    font-size: 10.5px;
+    gap: 4px;
+  }
+  
+  .nav-right { gap: 4px; }
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+  }
+  
+  .hub-headline {
+    font-size: 22px;
+  }
+  
+  .hub-subline {
+    font-size: 13px;
+  }
+  
+  .instrument-card {
+    padding: 14px 12px;
+  }
+  
+  .diagram-svg {
+    height: 78px;
+  }
+  
+  .game-view-container {
+    padding: 12px 8px 18px;
+    border-radius: 16px;
+  }
+  
+  .edge-clue {
+    width: 13px !important;
+    height: 13px !important;
+    font-size: 7.5px !important;
+  }
+  .h-clue { right: -7px !important; }
+  .v-clue { bottom: -7px !important; }
+}
+
+/* ================= BREAKPOINT 5: <= 340px (Ultra-Compact Phones) ================= */
+@media (max-width: 340px) {
+  :root {
+    --denge-cell-size: 35px;
+    --denge-gap: 3px;
+    
+    --sonar-cell-size: 28px;
+    --sonar-tx-size: 20px;
+    --sonar-gap: 2px;
+    
+    --res-cell-size: 30px;
+    --res-gap: 2px;
+  }
+  
+  .sonar-tx-row .sonar-tx-btn {
+    height: 24px !important;
+    font-size: 9px !important;
+  }
+  
+  .sonar-tx-col .sonar-tx-btn {
+    font-size: 9px !important;
+  }
+  
+  .weight-token {
+    font-size: 9.5px !important;
+  }
+}
+
+/* --- OBSERVATORY THEME STYLING FOR PRISM, KNOT, CIRCUIT & SPECTRUM --- */
+.prism-panel,
+.knot-panel,
+.circuit-panel,
+.spectrum-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-hairline);
+  box-shadow: 0 24px 60px rgba(var(--well-rgb), 0.55), 0 0 40px rgba(var(--card-rgb), 0.28);
+}
+
+.prism-hud,
+.knot-hud,
+.circuit-hud,
+.spectrum-hud {
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.prism-hud .hud-label,
+.knot-hud .hud-label,
+.circuit-hud .hud-label,
+.spectrum-hud .hud-label {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-muted);
+}
+
+.prism-hud .hud-value,
+.knot-hud .hud-value,
+.circuit-hud .hud-value,
+.spectrum-hud .hud-value {
+  color: var(--text-white);
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.prism-hud .hud-value.ok,
+.knot-hud .hud-value.ok,
+.circuit-hud .hud-value.ok,
+.spectrum-hud .hud-value.ok {
+  color: var(--teal);
+  text-shadow: 0 0 12px rgba(159, 227, 196, 0.45);
+}
+
+/* PRISM: Warm sunlight chamber */
+.prism-board {
+  background: var(--bg-well);
+  border: 1px solid var(--border-hairline);
+  box-shadow: inset 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+
+.laser-beam-outer {
+  stroke: rgba(255, 217, 120, 0.35);
+  stroke-width: 6;
+}
+
+.laser-beam-core {
+  stroke: #ffe1a6;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 8px #ffd978);
+}
+
+.prism-cell {
+  background: rgba(var(--card-rgb), 0.35);
+  border: 1px solid rgba(255, 236, 214, 0.08);
+}
+
+.prism-cell:hover {
+  background: rgba(var(--card-rgb), 0.55);
+}
+
+.cell-emitter {
+  background: rgba(255, 217, 120, 0.12);
+  border-color: rgba(255, 217, 120, 0.35);
+}
+
+.emitter-beam-icon {
+  color: #ffd978;
+  text-shadow: 0 0 10px #ffd978;
+}
+
+.emitter-arrow {
+  color: #ffd978;
+}
+
+.cell-sensor {
+  background: rgba(159, 227, 196, 0.1);
+  border-color: rgba(159, 227, 196, 0.28);
+}
+
+.cell-sensor.is-active {
+  background: rgba(159, 227, 196, 0.25);
+  border-color: #9fe3c4;
+  box-shadow: 0 0 20px rgba(159, 227, 196, 0.45);
+}
+
+.sensor-glyph {
+  color: rgba(255, 236, 214, 0.4);
+}
+
+.sensor-receptor.active-glow .sensor-glyph {
+  color: #9fe3c4;
+  text-shadow: 0 0 14px #9fe3c4;
+}
+
+.cell-mirror {
+  background: rgba(255, 244, 230, 0.06);
+  border-color: rgba(255, 236, 214, 0.16);
+}
+
+.cell-mirror:hover {
+  background: rgba(255, 244, 230, 0.12);
+  border-color: var(--amber);
+}
+
+.mirror-glass {
+  background: linear-gradient(90deg, #ffd978, #fff4e0, #ffd978);
+  box-shadow: 0 0 10px rgba(255, 217, 120, 0.8);
+}
+
+.mirror-pivot-dot {
+  background: #a87e5b;
+}
+
+.cell-obstacle {
+  background: rgba(43, 29, 59, 0.8);
+  border: 1px solid rgba(255, 236, 214, 0.08);
+}
+
+.obstacle-block {
+  color: rgba(255, 236, 214, 0.2);
+}
+
+/* KNOT: Twilight constellation canvas */
+.knot-canvas-container {
+  background: var(--bg-well);
+  border: 1px solid var(--border-hairline);
+  box-shadow: inset 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+.knot-edge-line {
+  stroke: rgba(159, 227, 196, 0.45);
+}
+
+.knot-panel.is-solved .knot-edge-line {
+  stroke: #9fe3c4;
+  filter: drop-shadow(0 0 8px rgba(159, 227, 196, 0.7));
+}
+
+.knot-intersect-dot {
+  fill: var(--coral);
+}
+
+.knot-intersect-pulse {
+  stroke: var(--coral);
+}
+
+.knot-node-outer {
+  fill: var(--bg-black);
+  stroke: #9fe3c4;
+  box-shadow: 0 0 12px rgba(159, 227, 196, 0.5);
+}
+
+.knot-node-inner {
+  fill: #fff4e0;
+}
+
+.knot-node-group:hover .knot-node-outer {
+  stroke: #ffe1a6;
+}
+
+/* CIRCUIT: Warm brass conduits & lanterns */
+.circuit-board {
+  background: var(--bg-well);
+  border: 1px solid var(--border-hairline);
+  box-shadow: inset 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+.circuit-tile {
+  background: rgba(var(--card-rgb), 0.45);
+  border-color: rgba(255, 236, 214, 0.1);
+}
+
+.circuit-tile:hover {
+  background: rgba(var(--card-rgb), 0.75);
+  border-color: rgba(255, 236, 214, 0.25);
+}
+
+.circuit-tile.is-powered {
+  background: rgba(60, 48, 85, 0.75);
+  border-color: rgba(155, 209, 229, 0.45);
+  box-shadow: inset 0 0 16px rgba(155, 209, 229, 0.2);
+}
+
+.circuit-wire {
+  stroke: rgba(255, 236, 214, 0.2);
+}
+
+.circuit-wire.powered {
+  stroke: #9bd1e5;
+  filter: drop-shadow(0 0 6px #9bd1e5);
+}
+
+.circuit-wire-hub {
+  fill: rgba(255, 236, 214, 0.2);
+}
+
+.circuit-wire-hub.powered {
+  fill: #9bd1e5;
+}
+
+.circuit-source-core {
+  fill: #ffd978;
+}
+
+.circuit-source-pulse {
+  stroke: #ffd978;
+}
+
+.circuit-terminal-badge.energized {
+  fill: #ffcf7a;
+  stroke: #ffe3a3;
+  filter: drop-shadow(0 0 8px #ffcf7a);
+}
+
+.circuit-leak-dot {
+  fill: var(--coral);
+}
+
+/* SPECTRUM: Starlight glass vials rack */
+.spectrum-tubes-rack {
+  background: var(--bg-well);
+  border: 1px solid var(--border-hairline);
+  box-shadow: inset 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+.spectrum-tube {
+  background: rgba(var(--card-rgb), 0.55);
+  border-color: rgba(255, 236, 214, 0.12);
+}
+
+.spectrum-tube:hover {
+  background: rgba(var(--card-rgb), 0.85);
+}
+
+.spectrum-tube.is-locked {
+  background: rgba(var(--well-rgb), 0.7);
+}
+
+.tube-glass-chamber {
+  background: #191222;
+  border-color: rgba(255, 236, 214, 0.2);
+}
+
+.tube-top-cap,
+.tube-freq,
+.tube-note {
+  font-family: var(--font-sans);
+}
+
+.tube-note {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple,
+  .breathe-ring,
+  .daily-clock-pill .pulse-indicator,
+  .lantern.lit,
+  .lore-lamp {
+    animation: none !important;
+  }
+  .sky-ready .sky-body {
+    transition: none !important;
+  }
+}

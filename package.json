@@ -1,0 +1,9 @@
+{
+  "name": "focal-daily-puzzles",
+  "version": "1.0.0",
+  "description": "Daily Perception & Logic Laboratory: Balance, Sonar, Resonance, Echo",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

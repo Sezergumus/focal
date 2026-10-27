@@ -1,0 +1,1716 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2b2f66" />
+    <title>Focal - The Gentle Observatory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./observatory.css" />
+  </head>
+  <body>
+    <!-- Quiet sky: one gradient (colours set by js/atmosphere.js from the clock), one sun/moon, sparse stars, one hill -->
+    <div class="sky" aria-hidden="true">
+      <div class="sky-stars"></div>
+      <div class="sky-body"></div>
+      <svg
+        class="sky-hills"
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="xMidYMax slice"
+      >
+        <path
+          class="hill"
+          d="M0 250 C 240 215 420 232 640 250 C 860 268 1080 222 1260 236 C 1350 243 1400 252 1440 248 L1440 320 L0 320 Z"
+        />
+      </svg>
+    </div>
+
+    <div class="studio-shell">
+      <!-- Observatory Top Navigation -->
+      <header class="studio-nav">
+        <div class="nav-left">
+          <a
+            href="#hub"
+            id="nav-brand"
+            class="brand-mark"
+            aria-label="Focal"
+            title="Focal"
+          >
+            <span class="brand-glyph" aria-hidden="true"></span>
+            <span class="brand-name">focal</span>
+          </a>
+        </div>
+
+        <div class="nav-right">
+          <div
+            class="daily-clock-pill"
+            title="Each midnight the sky changes and the instruments drift out of tune again"
+          >
+            <span class="pulse-indicator"></span>
+            <span id="daily-issue-text">day #1</span>
+            <span class="clock-sep">•</span>
+            <span id="daily-countdown-text">new sky in 0h 0m</span>
+          </div>
+
+          <button
+            id="btn-sound-toggle"
+            class="icon-btn"
+            title="Instrument sounds on / off"
+            aria-label="Toggle instrument sounds"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+          </button>
+
+          <div class="ambient-control-pill" id="ambient-control-pill">
+            <button
+              id="btn-ambient-toggle"
+              class="icon-btn ambient-toggle-btn"
+              title="Ambient music box (click to adjust volume)"
+              aria-label="Ambient sound settings"
+              aria-pressed="false"
+              aria-expanded="false"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+              <span class="ambient-pulse-dot" aria-hidden="true"></span>
+            </button>
+            <div
+              class="ambient-popover"
+              id="ambient-popover"
+              role="dialog"
+              aria-label="Ambient sound volume"
+            >
+              <button
+                id="btn-ambient-mute"
+                class="ambient-popover-mute"
+                type="button"
+                title="Toggle ambience"
+                aria-label="Toggle ambience on or off"
+              >
+                <span class="ambient-mute-text">on</span>
+              </button>
+              <input
+                type="range"
+                id="ambient-volume-slider"
+                class="ambient-volume-slider"
+                min="0"
+                max="100"
+                step="1"
+                value="33"
+                aria-label="Ambient music volume"
+                title="Ambient music volume"
+              />
+              <span id="ambient-volume-label" class="ambient-volume-label"
+                >33%</span
+              >
+            </div>
+          </div>
+
+          <button
+            id="btn-howto"
+            class="icon-btn"
+            title="Observer's guide"
+            aria-label="How to play"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: The Observation Desk -->
+      <section id="hub-view" class="hub-section">
+        <div class="hub-intro">
+          <div>
+            <div class="obs-station-tag">
+              <span class="dot"></span>
+              <span id="hub-greeting">Good morning, Observer</span>
+              <span class="tag-sep">·</span>
+              <span>Quiet Harbor · 41°N 29°E</span>
+            </div>
+
+            <div class="hub-mode-bar" style="margin-bottom: 14px">
+              <div class="mode-pill-toggle">
+                <button class="mode-pill-opt active" id="hub-mode-daily">
+                  today's sky
+                </button>
+                <button class="mode-pill-opt" id="hub-mode-endless">
+                  the archive
+                </button>
+              </div>
+            </div>
+
+            <h1 class="hub-headline" id="hub-headline-text">
+              Eight small instruments, <em>tuned gently</em> each day.
+            </h1>
+            <p class="hub-subline" id="hub-subline-text">
+              Every midnight the world changes: the wind, the light, the
+              currents and the constellations settle into a new pattern. Sit by
+              the window, and tune the day's eight instruments.
+            </p>
+          </div>
+          <div id="daily-progress-pill" class="daily-progress-summary">
+            <span class="lantern-row" id="lantern-row"></span>
+            <span id="daily-progress-text">0 / 8 instruments in tune</span>
+          </div>
+        </div>
+
+        <div class="instrument-grid">
+          <!-- 01 BALANCE -->
+          <article
+            class="instrument-card card-theme-balance"
+            data-open-game="denge"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">01</span>
+                <span>mass &amp; pendulum</span>
+              </span>
+              <span class="inst-status" data-card-status="denge"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-balance">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="balGlow" cx="50%" cy="56%" r="50%">
+                    <stop
+                      offset="0%"
+                      stop-color="#ffd99b"
+                      stop-opacity="0.32"
+                    />
+                    <stop offset="100%" stop-color="#ffd99b" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="balCenterHalo" cx="50%" cy="50%" r="50%">
+                    <stop
+                      offset="0%"
+                      stop-color="#ffe7b3"
+                      stop-opacity="0.65"
+                    />
+                    <stop
+                      offset="55%"
+                      stop-color="#ffcf7a"
+                      stop-opacity="0.24"
+                    />
+                    <stop offset="100%" stop-color="#ffcf7a" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <!-- Warm workshop ambient glow -->
+                <circle cx="140" cy="60" r="68" fill="url(#balGlow)" />
+                <!-- Subtle protractor degree arc -->
+                <path
+                  d="M 76 66 A 64 64 0 0 1 204 66"
+                  fill="none"
+                  stroke="rgba(255, 226, 186, 0.16)"
+                  stroke-width="1"
+                  stroke-dasharray="2 4"
+                />
+                <line
+                  x1="140"
+                  y1="22"
+                  x2="140"
+                  y2="92"
+                  stroke="rgba(255, 226, 186, 0.1)"
+                  stroke-width="1"
+                />
+                <!-- Interactive equilibrium halo (blooms on hover when balanced) -->
+                <circle
+                  cx="140"
+                  cy="62"
+                  r="32"
+                  fill="url(#balCenterHalo)"
+                  class="balance-halo"
+                />
+                <!-- Sculpted brass fulcrum pedestal (shifted slightly lower) -->
+                <path d="M140 66 L127 90 L153 90 Z" fill="#a87e5b" />
+                <path
+                  d="M140 66 L133 90 L147 90 Z"
+                  fill="#cb9f76"
+                  opacity="0.65"
+                />
+                <rect
+                  x="122"
+                  y="89"
+                  width="36"
+                  height="3.5"
+                  rx="1.75"
+                  fill="#70513b"
+                />
+                <!-- Cedar balance beam: tilted when idle, settles to 0deg on hover -->
+                <g class="balance-beam-group">
+                  <rect
+                    x="44"
+                    y="58"
+                    width="192"
+                    height="8"
+                    rx="4"
+                    fill="#d99f6c"
+                  />
+                  <rect
+                    x="44"
+                    y="58"
+                    width="192"
+                    height="3"
+                    rx="1.5"
+                    fill="#f7cfa2"
+                    opacity="0.75"
+                  />
+                  <!-- Left fixed sky-blue weight -->
+                  <circle cx="78" cy="50" r="8.5" fill="#9bd1e5" />
+                  <circle
+                    cx="75.5"
+                    cy="47.5"
+                    r="2.6"
+                    fill="#ffffff"
+                    opacity="0.65"
+                  />
+                  <!-- Right coral & sage weights -->
+                  <circle cx="182" cy="50" r="8.5" fill="#f4a9a0" />
+                  <circle
+                    cx="179.5"
+                    cy="47.5"
+                    r="2.6"
+                    fill="#ffffff"
+                    opacity="0.65"
+                  />
+                  <circle cx="214" cy="51.5" r="6.5" fill="#9fe3c4" />
+                  <circle
+                    cx="212"
+                    cy="49.5"
+                    r="2"
+                    fill="#ffffff"
+                    opacity="0.6"
+                  />
+                </g>
+                <!-- Center equilibrium ring & pivot jewel -->
+                <circle
+                  cx="140"
+                  cy="62"
+                  r="16"
+                  fill="none"
+                  stroke="#ffe1a6"
+                  stroke-width="1.5"
+                  stroke-dasharray="3 3.5"
+                  class="balance-ring"
+                />
+                <circle
+                  cx="140"
+                  cy="62"
+                  r="23"
+                  fill="none"
+                  stroke="#ffe1a6"
+                  stroke-width="1"
+                  class="balance-outer-halo-ring"
+                />
+                <circle
+                  cx="140"
+                  cy="62"
+                  r="4"
+                  fill="#fff4e0"
+                  class="balance-pivot-dot"
+                />
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Balance</h2>
+                <span class="inst-tag">5×5 pendulum</span>
+              </div>
+              <p class="inst-desc">
+                Place three colored weights and feel the board sway. Settle the
+                center of mass into the quiet ring in the middle.
+              </p>
+              <div class="field-note">
+                "Find the center point. When the weights settle, the wood begins
+                to breathe."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">3 weights · 0.0° tilt</span>
+            </div>
+          </article>
+
+          <!-- 02 SONAR -->
+          <article
+            class="instrument-card card-theme-sonar"
+            data-open-game="sonar"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">02</span>
+                <span>acoustic shadow</span>
+              </span>
+              <span class="inst-status" data-card-status="sonar"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-sonar">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="sonarGlow" cx="34%" cy="50%" r="52%">
+                    <stop offset="0%" stop-color="#7ce8d8" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#7ce8d8" stop-opacity="0" />
+                  </radialGradient>
+                  <linearGradient id="shadowCone" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#091524" stop-opacity="0.8" />
+                    <stop
+                      offset="100%"
+                      stop-color="#091524"
+                      stop-opacity="0.18"
+                    />
+                  </linearGradient>
+                </defs>
+                <!-- Bioluminescent water glow -->
+                <circle cx="94" cy="54" r="70" fill="url(#sonarGlow)" />
+                <!-- Acoustic shadow cone behind the first vessel -->
+                <polygon
+                  points="172,46 272,30 272,78 172,60"
+                  fill="url(#shadowCone)"
+                  class="sonar-shadow-cone"
+                />
+                <!-- Active ping guide line from transducer to first boat -->
+                <line
+                  x1="78"
+                  y1="54"
+                  x2="164"
+                  y2="54"
+                  stroke="#9fe3c4"
+                  stroke-width="1.3"
+                  stroke-dasharray="3 3"
+                  opacity="0.35"
+                />
+                <!-- Outgoing Ping Pulse (travels from transmitter to boat on hover) -->
+                <circle
+                  cx="78"
+                  cy="54"
+                  r="5"
+                  fill="#a8ffeb"
+                  class="sonar-ping-pulse"
+                />
+                <!-- Returning Echo Pulse (bounces from boat back to transmitter) -->
+                <circle
+                  cx="164"
+                  cy="54"
+                  r="4.5"
+                  fill="#ffd89e"
+                  class="sonar-return-echo"
+                />
+                <!-- Echo bounce ring expanding from boat -->
+                <circle
+                  cx="165"
+                  cy="54"
+                  r="8"
+                  fill="none"
+                  stroke="#ffd89e"
+                  stroke-width="1.5"
+                  class="sonar-echo-ripple"
+                />
+                <!-- Base transducer beacon -->
+                <circle
+                  cx="78"
+                  cy="54"
+                  r="4.5"
+                  fill="#e6fff9"
+                  class="sonar-transducer"
+                />
+                <!-- First illuminated boat catching the ping -->
+                <g class="sonar-target-boat">
+                  <path d="M150 52 L184 52 L177 60 L156 60 Z" fill="#ffd89e" />
+                  <path d="M167 52 V34 L180 50 Z" fill="#fff7e8" />
+                  <path
+                    d="M165 52 V37 L155 50 Z"
+                    fill="#f3dfc6"
+                    opacity="0.8"
+                  />
+                </g>
+                <!-- Second boat resting quietly in the acoustic shadow -->
+                <g class="sonar-shadow-boat">
+                  <path d="M214 56 L240 56 L235 62 L219 62 Z" fill="#9bd1e5" />
+                  <path d="M227 56 V43 L236 54 Z" fill="#cfeaf5" />
+                </g>
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Sonar</h2>
+                <span class="inst-tag">7 pings</span>
+              </div>
+              <p class="inst-desc">
+                Send a soft ping across the dark water. Only the first boat it
+                meets answers: everything behind it rests in shadow.
+              </p>
+              <div class="field-note">
+                "Send a whisper into deep water. Wait for the echo to find its
+                way back."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">4 sectors · 5 boats</span>
+            </div>
+          </article>
+
+          <!-- 03 RESONANCE -->
+          <article
+            class="instrument-card card-theme-resonance"
+            data-open-game="resonance"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">03</span>
+                <span>light &amp; phase</span>
+              </span>
+              <span class="inst-status" data-card-status="resonance"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-resonance">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="resGlow" cx="50%" cy="50%" r="52%">
+                    <stop
+                      offset="0%"
+                      stop-color="#c9a7f5"
+                      stop-opacity="0.28"
+                    />
+                    <stop offset="100%" stop-color="#c9a7f5" stop-opacity="0" />
+                  </radialGradient>
+                  <clipPath id="resWaveClip">
+                    <rect x="24" y="6" width="232" height="96" />
+                  </clipPath>
+                </defs>
+                <circle cx="140" cy="54" r="72" fill="url(#resGlow)" />
+                <!-- Fine harmonic matrix reference lines -->
+                <line
+                  x1="28"
+                  y1="54"
+                  x2="252"
+                  y2="54"
+                  stroke="rgba(255, 240, 224, 0.14)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="84"
+                  y1="20"
+                  x2="84"
+                  y2="88"
+                  stroke="rgba(255, 240, 224, 0.08)"
+                  stroke-width="1"
+                  stroke-dasharray="2 3"
+                />
+                <line
+                  x1="140"
+                  y1="16"
+                  x2="140"
+                  y2="92"
+                  stroke="rgba(255, 240, 224, 0.12)"
+                  stroke-width="1"
+                  stroke-dasharray="2 3"
+                />
+                <line
+                  x1="196"
+                  y1="20"
+                  x2="196"
+                  y2="88"
+                  stroke="rgba(255, 240, 224, 0.08)"
+                  stroke-width="1"
+                  stroke-dasharray="2 3"
+                />
+                <!-- Pure harmonic phase waves (Only the two waves, no extra balls/dots) -->
+                <g clip-path="url(#resWaveClip)">
+                  <path
+                    class="res-wave-crest"
+                    d="M -84 54 C -66 20, -46 20, -28 54 C -10 88, 10 88, 28 54 C 46 20, 66 20, 84 54 C 102 88, 122 88, 140 54 C 158 20, 178 20, 196 54 C 214 88, 234 88, 252 54 C 270 20, 290 20, 308 54 C 326 88, 346 88, 364 54"
+                    fill="none"
+                    stroke="#9bd1e5"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    class="res-wave-trough"
+                    d="M -84 54 C -66 88, -46 88, -28 54 C -10 20, 10 20, 28 54 C 46 88, 66 88, 84 54 C 102 20, 122 20, 140 54 C 158 88, 178 88, 196 54 C 214 20, 234 20, 252 54 C 270 88, 290 88, 308 54 C 326 20, 346 20, 364 54"
+                    fill="none"
+                    stroke="#ffcf7a"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                  />
+                </g>
+                <!-- Center harmonic anchor ring & dot at intersection -->
+                <circle
+                  cx="140"
+                  cy="54"
+                  r="13"
+                  fill="none"
+                  stroke="#ffe1a6"
+                  stroke-width="1.3"
+                  class="breathe-ring"
+                />
+                <circle
+                  cx="140"
+                  cy="54"
+                  r="5"
+                  fill="#fff4e0"
+                  class="res-center-dot"
+                />
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Resonance</h2>
+                <span class="inst-tag">3 crests · 3 troughs</span>
+              </div>
+              <p class="inst-desc">
+                Balance three blue crests and three amber troughs in every row
+                and column. Follow the connectors until the grid hums.
+              </p>
+              <div class="field-note">
+                "Guide the beam of light. When the mirrors find the right angle,
+                the room will glow."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">6×6 grid · = / ×</span>
+            </div>
+          </article>
+
+          <!-- 04 ECHO -->
+          <article
+            class="instrument-card card-theme-echo"
+            data-open-game="eko"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">04</span>
+                <span>rhythm of distance</span>
+              </span>
+              <span class="inst-status" data-card-status="eko"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-echo">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="echoGlow" cx="50%" cy="50%" r="54%">
+                    <stop
+                      offset="0%"
+                      stop-color="#f7c6db"
+                      stop-opacity="0.25"
+                    />
+                    <stop offset="100%" stop-color="#f7c6db" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle cx="140" cy="54" r="72" fill="url(#echoGlow)" />
+                <!-- Curved time-of-flight valley paths -->
+                <path
+                  d="M 52 54 Q 140 18 228 54"
+                  fill="none"
+                  stroke="rgba(255, 232, 196, 0.28)"
+                  stroke-width="1.3"
+                  stroke-dasharray="3 4"
+                  class="echo-flight-out"
+                />
+                <path
+                  d="M 228 54 Q 140 90 52 54"
+                  fill="none"
+                  stroke="rgba(249, 214, 230, 0.28)"
+                  stroke-width="1.3"
+                  stroke-dasharray="3 4"
+                  class="echo-flight-back"
+                />
+                <!-- Outgoing golden caller beacon from the left -->
+                <g class="echo-caller-group">
+                  <circle
+                    cx="52"
+                    cy="54"
+                    r="5.5"
+                    fill="#ffd978"
+                    class="echo-caller-beacon"
+                  />
+                  <circle
+                    cx="52"
+                    cy="54"
+                    r="9"
+                    fill="none"
+                    stroke="#ffd978"
+                    stroke-width="1.3"
+                    class="echo-caller-ripple"
+                  />
+                </g>
+
+                <!-- Returning rose-gold echo from the right mountain cliff -->
+                <g class="echo-cliff-group">
+                  <circle
+                    cx="228"
+                    cy="54"
+                    r="5.5"
+                    fill="#f9d6e6"
+                    class="echo-cliff-beacon"
+                  />
+                  <circle
+                    cx="228"
+                    cy="54"
+                    r="9"
+                    fill="none"
+                    stroke="#f9d6e6"
+                    stroke-width="1.3"
+                    class="echo-cliff-ripple"
+                  />
+                </g>
+                <!-- SINGLE CONTINUOUS SMOOTH PING (travels out along upper curve, returns along lower curve) -->
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="4.6"
+                  fill="#ffd978"
+                  class="echo-traveling-ping"
+                />
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Echo</h2>
+                <span class="inst-tag">340 m/s</span>
+              </div>
+              <p class="inst-desc">
+                Listen to a call across a far valley. Hold the pad for exactly
+                as long as the echo took to return, then compare by ear.
+              </p>
+              <div class="field-note">
+                "Listen to the quiet stretch between the call and its answer
+                across the valley."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">5 rounds · 500 pts</span>
+            </div>
+          </article>
+
+          <!-- 05 PRISM -->
+          <article
+            class="instrument-card card-theme-prism"
+            data-open-game="prism"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">05</span>
+                <span>light &amp; prism</span>
+              </span>
+              <span class="inst-status" data-card-status="prism"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-prism">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="prismGlow" cx="50%" cy="50%" r="55%">
+                    <stop
+                      offset="0%"
+                      stop-color="#ffd978"
+                      stop-opacity="0.28"
+                    />
+                    <stop offset="100%" stop-color="#ffd978" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="sensorGlow" cx="50%" cy="50%" r="50%">
+                    <stop
+                      offset="0%"
+                      stop-color="#9fe3c4"
+                      stop-opacity="0.75"
+                    />
+                    <stop offset="100%" stop-color="#9fe3c4" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <!-- Warm laboratory ambient glow -->
+                <circle cx="140" cy="54" r="72" fill="url(#prismGlow)" />
+
+                <!-- Inactive / Cold Beam Guide (visible when idle) -->
+                <path
+                  d="M 42 32 L 140 32 L 140 76 L 238 76"
+                  fill="none"
+                  stroke="rgba(255, 225, 166, 0.22)"
+                  stroke-width="1.6"
+                  stroke-dasharray="3 3"
+                  class="prism-beam-idle"
+                />
+
+                <!-- Active Sunbeam Path (blooms on hover) -->
+                <path
+                  d="M 42 32 L 140 32 L 140 76 L 238 76"
+                  fill="none"
+                  stroke="#ffe1a6"
+                  stroke-width="2.4"
+                  class="prism-beam-active"
+                />
+
+                <!-- Traveling Photon packet on hover -->
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="4.6"
+                  fill="#fffdf2"
+                  class="prism-traveling-photon"
+                />
+
+                <!-- Sunbeam Emitter Beacon -->
+                <g class="prism-emitter-group">
+                  <circle
+                    cx="42"
+                    cy="32"
+                    r="6"
+                    fill="#ffe1a6"
+                    class="prism-emitter-core"
+                  />
+                  <circle
+                    cx="42"
+                    cy="32"
+                    r="10"
+                    fill="none"
+                    stroke="rgba(255, 225, 166, 0.45)"
+                    stroke-width="1.4"
+                    class="prism-emitter-ring"
+                  />
+                </g>
+
+                <!-- Mirror 1 (at 140, 32): Tilted off-angle idle, aligns on hover -->
+                <g class="prism-mirror-1">
+                  <line
+                    x1="128"
+                    y1="44"
+                    x2="152"
+                    y2="20"
+                    stroke="#fff4e0"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="140" cy="32" r="3.2" fill="#a87e5b" />
+                </g>
+
+                <!-- Mirror 2 (at 140, 76): Tilted off-angle idle, aligns on hover -->
+                <g class="prism-mirror-2">
+                  <line
+                    x1="128"
+                    y1="64"
+                    x2="152"
+                    y2="88"
+                    stroke="#fff4e0"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="140" cy="76" r="3.2" fill="#a87e5b" />
+                </g>
+
+                <!-- Target Sensor Crystal & Ripple -->
+                <g class="prism-sensor-group">
+                  <circle
+                    cx="238"
+                    cy="76"
+                    r="22"
+                    fill="url(#sensorGlow)"
+                    class="prism-sensor-halo"
+                  />
+                  <circle
+                    cx="238"
+                    cy="76"
+                    r="8"
+                    fill="none"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    class="prism-sensor-ripple"
+                  />
+                  <circle
+                    cx="238"
+                    cy="76"
+                    r="13"
+                    fill="none"
+                    stroke="rgba(159, 227, 196, 0.4)"
+                    stroke-width="1.2"
+                    stroke-dasharray="2 3"
+                    class="prism-sensor-ring"
+                  />
+                  <polygon
+                    points="238,68 246,76 238,84 230,76"
+                    fill="#7ba591"
+                    class="prism-sensor-crystal"
+                  />
+                </g>
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Prism</h2>
+                <span class="inst-tag">5×5 photonics</span>
+              </div>
+              <p class="inst-desc">
+                Guide the sunbeam across the crystals. Turn the small mirrors so
+                every sensor catches the warm light.
+              </p>
+              <div class="field-note">
+                "Direct the stray beam of light. When the mirrors find the right
+                angle, the room will glow."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">5×5 chamber · 90° deflection</span>
+            </div>
+          </article>
+
+          <!-- 06 KNOT -->
+          <article
+            class="instrument-card card-theme-knot"
+            data-open-game="knot"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">06</span>
+                <span>thread &amp; constellation</span>
+              </span>
+              <span class="inst-status" data-card-status="knot"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-knot">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="knotGlow" cx="50%" cy="50%" r="55%">
+                    <stop
+                      offset="0%"
+                      stop-color="#9fe3c4"
+                      stop-opacity="0.28"
+                    />
+                    <stop offset="100%" stop-color="#9fe3c4" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="knotCenterHalo" cx="50%" cy="50%" r="50%">
+                    <stop
+                      offset="0%"
+                      stop-color="#ffd978"
+                      stop-opacity="0.65"
+                    />
+                    <stop offset="100%" stop-color="#ffd978" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle cx="140" cy="54" r="72" fill="url(#knotGlow)" />
+
+                <!-- Equilibrium Center Halo (blooms on hover) -->
+                <circle
+                  cx="140"
+                  cy="54"
+                  r="28"
+                  fill="url(#knotCenterHalo)"
+                  class="knot-center-halo"
+                />
+                <circle
+                  cx="140"
+                  cy="54"
+                  r="10"
+                  fill="none"
+                  stroke="#ffd978"
+                  stroke-width="1.4"
+                  class="knot-star-ripple"
+                />
+
+                <!-- TANGLED THREADS (visible when idle, fade out on hover) -->
+                <g class="knot-threads-tangled">
+                  <!-- Crossing lines -->
+                  <line
+                    x1="82"
+                    y1="54"
+                    x2="148"
+                    y2="38"
+                    stroke="rgba(244, 169, 160, 0.55)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="148"
+                    y1="38"
+                    x2="198"
+                    y2="54"
+                    stroke="rgba(159, 227, 196, 0.35)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="198"
+                    y1="54"
+                    x2="132"
+                    y2="70"
+                    stroke="rgba(244, 169, 160, 0.55)"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="132"
+                    y1="70"
+                    x2="82"
+                    y2="54"
+                    stroke="rgba(159, 227, 196, 0.35)"
+                    stroke-width="1.5"
+                  />
+                  <!-- Diagonal cross -->
+                  <line
+                    x1="82"
+                    y1="54"
+                    x2="198"
+                    y2="54"
+                    stroke="rgba(244, 169, 160, 0.45)"
+                    stroke-width="1.5"
+                    stroke-dasharray="3 3"
+                  />
+                  <line
+                    x1="148"
+                    y1="38"
+                    x2="132"
+                    y2="70"
+                    stroke="rgba(244, 169, 160, 0.7)"
+                    stroke-width="1.8"
+                  />
+                  <!-- Crossing Warning Beacon -->
+                  <circle
+                    cx="140"
+                    cy="54"
+                    r="5"
+                    fill="#f4a9a0"
+                    class="knot-crossing-beacon"
+                  />
+                  <circle
+                    cx="140"
+                    cy="54"
+                    r="9"
+                    fill="none"
+                    stroke="#f4a9a0"
+                    stroke-width="1.2"
+                    class="knot-crossing-pulse"
+                  />
+                </g>
+
+                <!-- UNTANGLED PLANAR THREADS (bloom on hover) -->
+                <g class="knot-threads-untangled">
+                  <!-- Outer Hexagon ring -->
+                  <polygon
+                    points="82,54 111,25 169,25 198,54 169,83 111,83"
+                    fill="none"
+                    stroke="#9fe3c4"
+                    stroke-width="1.6"
+                    class="knot-hex-ring"
+                  />
+                  <!-- Radial chords to center -->
+                  <line
+                    x1="82"
+                    y1="54"
+                    x2="140"
+                    y2="54"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    opacity="0.6"
+                  />
+                  <line
+                    x1="111"
+                    y1="25"
+                    x2="140"
+                    y2="54"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    opacity="0.6"
+                  />
+                  <line
+                    x1="169"
+                    y1="25"
+                    x2="140"
+                    y2="54"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    opacity="0.6"
+                  />
+                  <line
+                    x1="198"
+                    y1="54"
+                    x2="140"
+                    y2="54"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    opacity="0.6"
+                  />
+                  <line
+                    x1="169"
+                    y1="83"
+                    x2="140"
+                    y2="54"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    opacity="0.6"
+                  />
+                  <line
+                    x1="111"
+                    y1="83"
+                    x2="140"
+                    y2="54"
+                    stroke="#9fe3c4"
+                    stroke-width="1.4"
+                    opacity="0.6"
+                  />
+                </g>
+
+                <!-- CONSTELLATION STARS -->
+                <!-- Static Stars -->
+                <circle
+                  cx="82"
+                  cy="54"
+                  r="5"
+                  fill="#202c3e"
+                  stroke="#9fe3c4"
+                  stroke-width="2"
+                  class="knot-star"
+                />
+                <circle
+                  cx="169"
+                  cy="25"
+                  r="5"
+                  fill="#202c3e"
+                  stroke="#9fe3c4"
+                  stroke-width="2"
+                  class="knot-star"
+                />
+                <circle
+                  cx="198"
+                  cy="54"
+                  r="5"
+                  fill="#202c3e"
+                  stroke="#9fe3c4"
+                  stroke-width="2"
+                  class="knot-star"
+                />
+                <circle
+                  cx="111"
+                  cy="83"
+                  r="5"
+                  fill="#202c3e"
+                  stroke="#9fe3c4"
+                  stroke-width="2"
+                  class="knot-star"
+                />
+
+                <!-- Moving Stars (shift from tangled to untangled on hover) -->
+                <g class="knot-star-glide-top">
+                  <circle
+                    cx="111"
+                    cy="25"
+                    r="5.5"
+                    fill="#202c3e"
+                    stroke="#9fe3c4"
+                    stroke-width="2.2"
+                    class="knot-star"
+                  />
+                </g>
+                <g class="knot-star-glide-bottom">
+                  <circle
+                    cx="169"
+                    cy="83"
+                    r="5.5"
+                    fill="#202c3e"
+                    stroke="#9fe3c4"
+                    stroke-width="2.2"
+                    class="knot-star"
+                  />
+                </g>
+
+                <!-- Center Star Core Jewel -->
+                <circle
+                  cx="140"
+                  cy="54"
+                  r="6"
+                  fill="#ffd978"
+                  class="knot-center-star"
+                />
+                <circle cx="140" cy="54" r="2.2" fill="#ffffff" opacity="0.8" />
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Knot</h2>
+                <span class="inst-tag">untangle lines</span>
+              </div>
+              <p class="inst-desc">
+                Untangle the silken threads of the constellation. Move the
+                glowing stars until no lines cross, restoring quiet to the sky.
+              </p>
+              <div class="field-note">
+                "Gently part the entangled threads. When the stars find their
+                peaceful places, the wind falls still."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">7 stars · 0 crossings</span>
+            </div>
+          </article>
+
+          <!-- 07 CIRCUIT -->
+          <article
+            class="instrument-card card-theme-circuit"
+            data-open-game="circuit"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">07</span>
+                <span>current &amp; conduit</span>
+              </span>
+              <span class="inst-status" data-card-status="circuit"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-circuit">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="circuitGlow" cx="50%" cy="50%" r="55%">
+                    <stop offset="0%" stop-color="#9bd1e5" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#9bd1e5" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ffd978" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#ffd978" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle cx="140" cy="54" r="72" fill="url(#circuitGlow)" />
+
+                <!-- Conduit Background Track (dim brass) -->
+                <path
+                  d="M 54 54 L 98 54 A 10 10 0 0 0 108 44 L 108 30 A 10 10 0 0 1 118 20 L 162 20 A 10 10 0 0 1 172 30 L 172 68 A 10 10 0 0 0 182 78 L 226 78"
+                  fill="none"
+                  stroke="rgba(155, 209, 229, 0.2)"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+
+                <!-- Active Neon Current Path (illuminates on hover) -->
+                <path
+                  d="M 54 54 L 98 54 A 10 10 0 0 0 108 44 L 108 30 A 10 10 0 0 1 118 20 L 162 20 A 10 10 0 0 1 172 30 L 172 68 A 10 10 0 0 0 182 78 L 226 78"
+                  fill="none"
+                  stroke="#9bd1e5"
+                  stroke-width="2.6"
+                  stroke-linecap="round"
+                  class="circuit-conduit-active"
+                />
+
+                <!-- Traveling Energy Spark Pulse -->
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="4.6"
+                  fill="#e8f8ff"
+                  class="circuit-spark-pulse"
+                />
+
+                <!-- Dynamo Source Station at (54, 54) -->
+                <g class="circuit-dynamo-group">
+                  <circle
+                    cx="54"
+                    cy="54"
+                    r="14"
+                    fill="none"
+                    stroke="rgba(255, 217, 120, 0.3)"
+                    stroke-width="1.2"
+                    stroke-dasharray="2 3"
+                    class="circuit-dynamo-outer"
+                  />
+                  <circle
+                    cx="54"
+                    cy="54"
+                    r="8.5"
+                    fill="#1b2538"
+                    stroke="#ffd978"
+                    stroke-width="2"
+                    class="circuit-dynamo-ring"
+                  />
+                  <circle
+                    cx="54"
+                    cy="54"
+                    r="3.8"
+                    fill="#ffd978"
+                    class="circuit-dynamo-core"
+                  />
+                </g>
+
+                <!-- Rotating Relay Switch at (108, 37): turned 90° idle, aligns on hover -->
+                <g class="circuit-relay-switch">
+                  <circle
+                    cx="108"
+                    cy="37"
+                    r="5"
+                    fill="#202c42"
+                    stroke="#9bd1e5"
+                    stroke-width="1.5"
+                  />
+                  <line
+                    x1="108"
+                    y1="32"
+                    x2="108"
+                    y2="42"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </g>
+
+                <!-- Secondary Junction at (172, 49) -->
+                <circle
+                  cx="172"
+                  cy="49"
+                  r="3.5"
+                  fill="#9bd1e5"
+                  class="circuit-junction-dot"
+                />
+
+                <!-- Terminal Lantern at (226, 78) -->
+                <g class="circuit-lantern-group">
+                  <!-- Lantern bloom aura -->
+                  <circle
+                    cx="226"
+                    cy="78"
+                    r="24"
+                    fill="url(#lanternGlow)"
+                    class="circuit-lantern-halo"
+                  />
+                  <circle
+                    cx="226"
+                    cy="78"
+                    r="9"
+                    fill="none"
+                    stroke="#ffd978"
+                    stroke-width="1.4"
+                    class="circuit-lantern-ripple"
+                  />
+                  <circle
+                    cx="226"
+                    cy="78"
+                    r="13"
+                    fill="none"
+                    stroke="rgba(255, 207, 122, 0.45)"
+                    stroke-width="1.2"
+                    stroke-dasharray="2 2"
+                  />
+                  <!-- Lantern jewel diamond -->
+                  <polygon
+                    points="226,71 233,78 226,85 219,78"
+                    fill="#a48455"
+                    class="circuit-lantern-body"
+                  />
+                  <circle
+                    cx="226"
+                    cy="78"
+                    r="2.5"
+                    fill="#ffffff"
+                    opacity="0.7"
+                  />
+                </g>
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Circuit</h2>
+                <span class="inst-tag">magnetic loop</span>
+              </div>
+              <p class="inst-desc">
+                Rotate the brass conduits to guide the gentle current from the
+                station dynamo to every lantern without spilling into the dark.
+              </p>
+              <div class="field-note">
+                "Trace the warmth through the brass pipes. Every lamp in the
+                observatory yearns to be lit."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">4×4 matrix · 0 leaks</span>
+            </div>
+          </article>
+
+          <!-- 08 SPECTRUM -->
+          <article
+            class="instrument-card card-theme-spectrum"
+            data-open-game="spectrum"
+            tabindex="0"
+          >
+            <div class="inst-top-meta">
+              <span class="inst-index">
+                <span class="inst-num-badge">08</span>
+                <span>color &amp; gamut</span>
+              </span>
+              <span class="inst-status" data-card-status="spectrum"
+                >ready to tune</span
+              >
+            </div>
+
+            <div class="inst-diagram diagram-spectrum">
+              <svg viewBox="0 0 280 108" class="diagram-svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="specGlow" cx="50%" cy="50%" r="55%">
+                    <stop
+                      offset="0%"
+                      stop-color="#d8b8f0"
+                      stop-opacity="0.32"
+                    />
+                    <stop offset="100%" stop-color="#d8b8f0" stop-opacity="0" />
+                  </radialGradient>
+                  <!-- 7 Starlight Liquid Gradients -->
+                  <linearGradient id="specGrad1" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#c4b5fd"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                  <linearGradient id="specGrad2" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#6366f1" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#a5b4fc"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                  <linearGradient id="specGrad3" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#7dd3fc"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                  <linearGradient id="specGrad4" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#5eead4"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                  <linearGradient id="specGrad5" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#22c55e" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#86efac"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                  <linearGradient id="specGrad6" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#fde68a"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                  <linearGradient id="specGrad7" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9" />
+                    <stop
+                      offset="100%"
+                      stop-color="#fca5a5"
+                      stop-opacity="0.4"
+                    />
+                  </linearGradient>
+                </defs>
+                <circle cx="140" cy="54" r="72" fill="url(#specGlow)" />
+
+                <!-- 7 Starlight Vials (Staggered harmonic float on hover) -->
+                <g class="spec-vial spec-vial-1">
+                  <rect
+                    x="46"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad1)"
+                    stroke="#a78bfa"
+                    stroke-width="1.4"
+                  />
+                  <!-- Vial cap -->
+                  <rect
+                    x="49"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#c4b5fd"
+                  />
+                </g>
+                <g class="spec-vial spec-vial-2">
+                  <rect
+                    x="72"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad2)"
+                    stroke="#818cf8"
+                    stroke-width="1.4"
+                  />
+                  <rect
+                    x="75"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#a5b4fc"
+                  />
+                </g>
+                <g class="spec-vial spec-vial-3">
+                  <rect
+                    x="98"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad3)"
+                    stroke="#38bdf8"
+                    stroke-width="1.4"
+                  />
+                  <rect
+                    x="101"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#7dd3fc"
+                  />
+                </g>
+                <g class="spec-vial spec-vial-4">
+                  <rect
+                    x="124"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad4)"
+                    stroke="#2dd4bf"
+                    stroke-width="1.4"
+                  />
+                  <rect
+                    x="127"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#5eead4"
+                  />
+                </g>
+                <g class="spec-vial spec-vial-5">
+                  <rect
+                    x="150"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad5)"
+                    stroke="#4ade80"
+                    stroke-width="1.4"
+                  />
+                  <rect
+                    x="153"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#86efac"
+                  />
+                </g>
+                <g class="spec-vial spec-vial-6">
+                  <rect
+                    x="176"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad6)"
+                    stroke="#fbbf24"
+                    stroke-width="1.4"
+                  />
+                  <rect
+                    x="179"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#fde68a"
+                  />
+                </g>
+                <g class="spec-vial spec-vial-7">
+                  <rect
+                    x="202"
+                    y="28"
+                    width="16"
+                    height="52"
+                    rx="5"
+                    fill="url(#specGrad7)"
+                    stroke="#f87171"
+                    stroke-width="1.4"
+                  />
+                  <rect
+                    x="205"
+                    y="25"
+                    width="10"
+                    height="4"
+                    rx="1.5"
+                    fill="#fca5a5"
+                  />
+                </g>
+              </svg>
+            </div>
+
+            <div class="inst-body">
+              <div class="inst-title-row">
+                <h2>Spectrum</h2>
+                <span class="inst-tag">400-750 THz</span>
+              </div>
+              <p class="inst-desc">
+                Arrange the glass vials of starlight into a smooth ascending
+                melody. Reorder the colors until the light and the tones chime
+                as one.
+              </p>
+              <div class="field-note">
+                "From the violet of dusk to the crimson of morning, let each
+                color chime in harmony."
+              </div>
+            </div>
+
+            <div class="inst-footer">
+              <span class="cta-pill">tune this instrument →</span>
+              <span class="inst-spec">7 vials · pure melody</span>
+            </div>
+          </article>
+        </div>
+
+        <p class="hub-whisper">
+          Nothing here ever buzzes or fails. A wrong turn only sends a small
+          ripple across the water - take all the time you like.
+        </p>
+      </section>
+
+      <!-- VIEW 2: The Instrument Stage -->
+      <section id="game-view" class="game-view-container hidden">
+        <div class="game-topbar">
+          <button id="btn-back-hub" class="text-back-btn">
+            ← back to the observation desk
+          </button>
+          <div class="game-seed-controls">
+            <div class="mode-pill-toggle compact">
+              <button class="mode-pill-opt active" id="game-mode-daily">
+                today
+              </button>
+              <button class="mode-pill-opt" id="game-mode-endless">
+                archive ∞
+              </button>
+            </div>
+            <span id="current-seed-badge" class="mono-seed-tag">day #1</span>
+            <button
+              id="btn-random-seed"
+              class="subtle-pill-btn hidden seed-refresh-btn"
+              title="Draw another sky from the archive"
+            >
+              ↻ new sky
+            </button>
+          </div>
+        </div>
+
+        <!-- In-stage poetic instrument note -->
+        <div id="stage-lore-banner" class="instrument-lore-banner"></div>
+
+        <main id="game-stage" class="dialed-game-stage"></main>
+      </section>
+    </div>
+
+    <!-- Observer's Guide Modal -->
+    <div id="howto-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <button id="close-howto-btn" class="modal-close-btn" aria-label="Close">
+          ✕
+        </button>
+        <div id="howto-modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Win Modal (Instrument in tune) -->
+    <div id="win-modal" class="modal-backdrop hidden">
+      <div class="modal-card win-card">
+        <button id="close-win-btn" class="modal-close-btn" aria-label="Close">
+          ✕
+        </button>
+        <div id="win-modal-body"></div>
+        <div class="win-modal-actions">
+          <button id="btn-copy-share" class="white-pill-btn">
+            share this note
+          </button>
+          <button id="btn-win-next" class="accent-pill-btn hidden">
+            another sky →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./js/observatory-main.js"></script>
+  </body>
+</html>
