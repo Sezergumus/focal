@@ -14,7 +14,7 @@ import { SpectrumGame } from './game-spectrum.js';
 
 const HOW_TO_PLAY_CONTENT = {
   denge: {
-    title: '01 / balance (5×5)',
+    title: '01 / balance (6×6)',
     subtitle: 'zero math, pure visual center of mass',
     steps: [
       {
@@ -99,12 +99,12 @@ const HOW_TO_PLAY_CONTENT = {
   },
   prism: {
     title: '05 / prism (optical routing)',
-    subtitle: '5×5 photonics • rotate mirrors to illuminate target sensors',
+    subtitle: '6×6 photonics • rotate mirrors to illuminate target sensors',
     steps: [
       {
         icon: '01',
         heading: 'laser emitter & sensors',
-        text: 'The laser emitter continuously casts a monochromatic beam into the 5×5 laboratory chamber. Guide the beam so it activates all target sensors.'
+        text: 'The laser emitter continuously casts a monochromatic beam into the 6×6 laboratory chamber. Guide the beam so it activates all target sensors.'
       },
       {
         icon: '02',
@@ -130,7 +130,7 @@ const HOW_TO_PLAY_CONTENT = {
       {
         icon: '02',
         heading: 'drag nodes to untangle',
-        text: 'Click and drag (or touch and drag) any node across the screen to untangle overlapping edges.'
+        text: 'Click and drag (or touch and drag) any node across the screen to untangle overlapping edges. The two ringed nodes are pinned in place, so build the rest around them.'
       },
       {
         icon: '03',
@@ -162,22 +162,22 @@ const HOW_TO_PLAY_CONTENT = {
   },
   spectrum: {
     title: '08 / spectrum (harmonic gamut)',
-    subtitle: '400-750 THz • order optical tubes into a pure musical scale',
+    subtitle: 'order seven hidden voices from lowest to highest by ear',
     steps: [
       {
         icon: '01',
-        heading: 'fixed optical bounds',
-        text: 'The leftmost tube (Violet / 400 THz / C4) and rightmost tube (Ruby / 750 THz / C5) are locked anchors.'
+        heading: 'colors lie',
+        text: 'Each tube sings one hidden pitch. Color and name are decoys and have nothing to do with the pitch.'
       },
       {
         icon: '02',
-        heading: 'swap intermediate tubes',
-        text: 'Click any tube to hear its pure frequency. Click a second tube to swap their positions.'
+        heading: 'swap any tubes',
+        text: 'Click a tube to hear it. Click a second tube to swap their positions. Pitches can be a single semitone apart, so listen closely.'
       },
       {
         icon: '03',
         heading: 'audition ascending scale',
-        text: 'Click "Listen Spectrum Sequence" to play the rack left-to-right. Align the tubes into a smooth color gradient and ascending melody.'
+        text: 'Click "Listen Spectrum Sequence" to play the rack left-to-right. Put the tubes in order from the lowest voice on the left to the highest on the right. "Check order" tells you how many tubes are already in place (not which), and a hint points at a slot without moving anything.'
       }
     ]
   }

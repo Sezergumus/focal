@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#3d2c63" />
+      <stop offset="60%" stop-color="#22193d" />
+      <stop offset="100%" stop-color="#130e24" />
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff9e6" stop-opacity="1" />
+      <stop offset="40%" stop-color="#ffd978" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#ffae52" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="brass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe6b0" />
+      <stop offset="50%" stop-color="#d9a85b" />
+      <stop offset="100%" stop-color="#8c622b" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded Observatory Medallion Base -->
+  <rect x="3" y="3" width="58" height="58" rx="15" fill="url(#sky)" stroke="url(#brass)" stroke-width="2.5" />
+
+  <!-- Subtle Astrolabe Ring & Cardinal Ticks -->
+  <circle cx="32" cy="30" r="21" fill="none" stroke="#ffe1a6" stroke-width="1" stroke-opacity="0.28" stroke-dasharray="3 2.5" />
+  <line x1="32" y1="6" x2="32" y2="10" stroke="#ffe1a6" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+  <line x1="11" y1="30" x2="7" y2="30" stroke="#ffe1a6" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+  <line x1="57" y1="30" x2="53" y2="30" stroke="#ffe1a6" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+
+  <!-- Lighthouse Sunbeam Wings -->
+  <polygon points="32,25 9,15 9,27" fill="url(#glow)" opacity="0.55" />
+  <polygon points="32,25 55,15 55,27" fill="url(#glow)" opacity="0.55" />
+
+  <!-- Lighthouse Tower Silhouette -->
+  <path d="M 26.5 49 L 28.5 31 L 35.5 31 L 37.5 49 Z" fill="#2c2046" stroke="url(#brass)" stroke-width="1.5" stroke-linejoin="round" />
+  <line x1="25" y1="31" x2="39" y2="31" stroke="url(#brass)" stroke-width="2" stroke-linecap="round" />
+  <path d="M 27.5 31 V 22 a 4.5 4.5 0 0 1 9 0 V 31 Z" fill="#3a284e" stroke="url(#brass)" stroke-width="1.4" />
+
+  <!-- Warm Lantern Starlight Core -->
+  <circle cx="32" cy="25" r="11" fill="url(#glow)" />
+  <path d="M 32 14 L 33.8 23.2 L 43 25 L 33.8 26.8 L 32 36 L 30.2 26.8 L 21 25 L 30.2 23.2 Z" fill="#fffdf5" />
+  <circle cx="32" cy="25" r="3.2" fill="#ffffff" />
+</svg>

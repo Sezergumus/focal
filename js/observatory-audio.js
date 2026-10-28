@@ -291,6 +291,7 @@ class AmbientBed {
     this.enabled = false;
     this.volume = 0.33; // 0.0 .. 1.0 default sweet spot: 33%
     this.gestureSeen = false;
+    this.ducked = false; // true while a listening puzzle is open; the saved setting is untouched
     this.nodes = null;
     this.phraseTimer = null;
     this.swellTimer = null;
@@ -374,8 +375,15 @@ class AmbientBed {
     }
   }
 
+  // Listening puzzles (Echo, Spectrum) need a quiet room: fade the bed out without changing the user's setting
+  setDucked(ducked) {
+    if (this.ducked === ducked) return;
+    this.ducked = ducked;
+    this.sync();
+  }
+
   shouldPlay() {
-    return this.enabled && this.volume > 0 && this.orig.enabled && this.gestureSeen && !document.hidden;
+    return this.enabled && this.volume > 0 && this.orig.enabled && this.gestureSeen && !document.hidden && !this.ducked;
   }
 
   sync() {
@@ -385,6 +393,7 @@ class AmbientBed {
 
   start() {
     if (this.nodes) return;
+    this.orig.init(); // wake the context after the app was backgrounded
     const bus = this.engine.getBus();
     const ctx = this.orig.ctx;
     if (!bus || !ctx) return;

@@ -10,7 +10,7 @@
 // Every 5 minutes the palette is recomputed from the clock and written to CSS custom properties.
 // Nothing in the sky animates continuously.
 //
-// Preview helpers (URL only): observatory.html?hour=12&day=3
+// Preview helpers (URL only): index.html?hour=12&day=3
 //   hour = 0..24 (fractional allowed), day = 0 (Sunday) .. 6 (Saturday)
 
 const UPDATE_MS = 60 * 1000;

@@ -5,13 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#2b2f66" />
     <title>Focal - The Gentle Observatory</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Focal" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./observatory.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <!-- Quiet sky: one gradient (colours set by js/atmosphere.js from the clock), one sun/moon, sparse stars, one hill -->
@@ -53,7 +59,9 @@
           >
             <span class="pulse-indicator"></span>
             <span id="daily-issue-text">day #1</span>
-            <span class="clock-sep">•</span>
+            <svg class="ico clock-sep" aria-hidden="true">
+              <use href="#i-star"></use>
+            </svg>
             <span id="daily-countdown-text">new sky in 0h 0m</span>
           </div>
 
@@ -137,19 +145,10 @@
             id="btn-howto"
             class="icon-btn"
             title="Observer's guide"
-            aria-label="How to play"
+            aria-label="Observer's guide"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            <svg class="ico ico-lg" aria-hidden="true">
+              <use href="#i-compass"></use>
             </svg>
           </button>
         </div>
@@ -163,7 +162,7 @@
               <span class="dot"></span>
               <span id="hub-greeting">Good morning, Observer</span>
               <span class="tag-sep">·</span>
-              <span>Quiet Harbor · 41°N 29°E</span>
+              <span>Quiet Harbor</span>
             </div>
 
             <div class="hub-mode-bar" style="margin-bottom: 14px">
@@ -181,9 +180,8 @@
               Eight small instruments, <em>tuned gently</em> each day.
             </h1>
             <p class="hub-subline" id="hub-subline-text">
-              Every midnight the world changes: the wind, the light, the
-              currents and the constellations settle into a new pattern. Sit by
-              the window, and tune the day's eight instruments.
+              Each midnight the wind, the sea and the sky drift out of tune. Sit
+              by the window and guide them gently back.
             </p>
           </div>
           <div id="daily-progress-pill" class="daily-progress-summary">
@@ -202,7 +200,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">01</span>
-                <span>mass &amp; pendulum</span>
+                <span>the swaying tower</span>
               </span>
               <span class="inst-status" data-card-status="denge"
                 >ready to tune</span
@@ -354,21 +352,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Balance</h2>
-                <span class="inst-tag">5×5 pendulum</span>
               </div>
               <p class="inst-desc">
-                Place three colored weights and feel the board sway. Settle the
-                center of mass into the quiet ring in the middle.
+                Settle the counterweights until the tower stops swaying in the
+                coastal wind.
               </p>
-              <div class="field-note">
-                "Find the center point. When the weights settle, the wood begins
-                to breathe."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">3 weights · 0.0° tilt</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -381,7 +377,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">02</span>
-                <span>acoustic shadow</span>
+                <span>the quiet harbor</span>
               </span>
               <span class="inst-status" data-card-status="sonar"
                 >ready to tune</span
@@ -478,21 +474,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Sonar</h2>
-                <span class="inst-tag">7 pings</span>
               </div>
               <p class="inst-desc">
-                Send a soft ping across the dark water. Only the first boat it
-                meets answers: everything behind it rests in shadow.
+                Send soft pings through the morning mist to find the quiet
+                boats.
               </p>
-              <div class="field-note">
-                "Send a whisper into deep water. Wait for the echo to find its
-                way back."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">4 sectors · 5 boats</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -505,7 +499,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">03</span>
-                <span>light &amp; phase</span>
+                <span>the restless air</span>
               </span>
               <span class="inst-status" data-card-status="resonance"
                 >ready to tune</span
@@ -606,21 +600,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Resonance</h2>
-                <span class="inst-tag">3 crests · 3 troughs</span>
               </div>
               <p class="inst-desc">
-                Balance three blue crests and three amber troughs in every row
-                and column. Follow the connectors until the grid hums.
+                Align crests and troughs until the clashing air currents cancel
+                out and the sky hums still.
               </p>
-              <div class="field-note">
-                "Guide the beam of light. When the mirrors find the right angle,
-                the room will glow."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">6×6 grid · = / ×</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -633,7 +625,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">04</span>
-                <span>rhythm of distance</span>
+                <span>the valley&rsquo;s memory</span>
               </span>
               <span class="inst-status" data-card-status="eko"
                 >ready to tune</span
@@ -723,21 +715,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Echo</h2>
-                <span class="inst-tag">340 m/s</span>
               </div>
               <p class="inst-desc">
-                Listen to a call across a far valley. Hold the pad for exactly
-                as long as the echo took to return, then compare by ear.
+                Call into the canyon, then hold the pad for as long as the echo
+                took to return.
               </p>
-              <div class="field-note">
-                "Listen to the quiet stretch between the call and its answer
-                across the valley."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">5 rounds · 500 pts</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -750,7 +740,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">05</span>
-                <span>light &amp; prism</span>
+                <span>the morning sunbeam</span>
               </span>
               <span class="inst-status" data-card-status="prism"
                 >ready to tune</span
@@ -896,21 +886,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Prism</h2>
-                <span class="inst-tag">5×5 photonics</span>
               </div>
               <p class="inst-desc">
-                Guide the sunbeam across the crystals. Turn the small mirrors so
-                every sensor catches the warm light.
+                Turn small brass mirrors to guide the sunbeam to every dormant
+                crystal.
               </p>
-              <div class="field-note">
-                "Direct the stray beam of light. When the mirrors find the right
-                angle, the room will glow."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">5×5 chamber · 90° deflection</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -923,7 +911,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">06</span>
-                <span>thread &amp; constellation</span>
+                <span>the star threads</span>
               </span>
               <span class="inst-status" data-card-status="knot"
                 >ready to tune</span
@@ -1187,21 +1175,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Knot</h2>
-                <span class="inst-tag">untangle lines</span>
               </div>
               <p class="inst-desc">
-                Untangle the silken threads of the constellation. Move the
-                glowing stars until no lines cross, restoring quiet to the sky.
+                Untangle the crossing threads of the stars and clear the haze
+                from the night sky.
               </p>
-              <div class="field-note">
-                "Gently part the entangled threads. When the stars find their
-                peaceful places, the wind falls still."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">7 stars · 0 crossings</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -1214,7 +1200,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">07</span>
-                <span>current &amp; conduit</span>
+                <span>the brass pipes</span>
               </span>
               <span class="inst-status" data-card-status="circuit"
                 >ready to tune</span
@@ -1371,21 +1357,19 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Circuit</h2>
-                <span class="inst-tag">magnetic loop</span>
               </div>
               <p class="inst-desc">
-                Rotate the brass conduits to guide the gentle current from the
-                station dynamo to every lantern without spilling into the dark.
+                Route warm current through brass pipes to light every reading
+                lantern before dusk.
               </p>
-              <div class="field-note">
-                "Trace the warmth through the brass pipes. Every lamp in the
-                observatory yearns to be lit."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">4×4 matrix · 0 leaks</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
 
@@ -1398,7 +1382,7 @@
             <div class="inst-top-meta">
               <span class="inst-index">
                 <span class="inst-num-badge">08</span>
-                <span>color &amp; gamut</span>
+                <span>the seven vials</span>
               </span>
               <span class="inst-status" data-card-status="spectrum"
                 >ready to tune</span
@@ -1624,29 +1608,26 @@
             <div class="inst-body">
               <div class="inst-title-row">
                 <h2>Spectrum</h2>
-                <span class="inst-tag">400-750 THz</span>
               </div>
               <p class="inst-desc">
-                Arrange the glass vials of starlight into a smooth ascending
-                melody. Reorder the colors until the light and the tones chime
-                as one.
+                Arrange seven vials of starlight in rising pitch, and reunite
+                color with melody.
               </p>
-              <div class="field-note">
-                "From the violet of dusk to the crimson of morning, let each
-                color chime in harmony."
-              </div>
             </div>
 
             <div class="inst-footer">
-              <span class="cta-pill">tune this instrument →</span>
-              <span class="inst-spec">7 vials · pure melody</span>
+              <span class="cta-pill"
+                ><span>tune</span
+                ><svg class="ico" aria-hidden="true">
+                  <use href="#i-beam"></use></svg
+              ></span>
             </div>
           </article>
         </div>
 
         <p class="hub-whisper">
-          Nothing here ever buzzes or fails. A wrong turn only sends a small
-          ripple across the water - take all the time you like.
+          No timers, no sirens, no failures. A wrong turn only sends a small
+          ripple across the water.
         </p>
       </section>
 
@@ -1654,15 +1635,25 @@
       <section id="game-view" class="game-view-container hidden">
         <div class="game-topbar">
           <button id="btn-back-hub" class="text-back-btn">
-            ← back to the observation desk
+            <svg class="ico ico-flip" aria-hidden="true">
+              <use href="#i-beam"></use>
+            </svg>
+            <span>back to the desk</span>
           </button>
+          <div class="game-switcher" id="game-switcher">
+            <button id="btn-game-switch" class="subtle-pill-btn" aria-haspopup="true" aria-expanded="false">
+              <span id="game-switch-label">games</span>
+              <svg class="ico" aria-hidden="true"><use href="#i-beam"></use></svg>
+            </button>
+            <div id="game-switch-menu" class="game-switch-menu hidden" role="menu"></div>
+          </div>
           <div class="game-seed-controls">
             <div class="mode-pill-toggle compact">
               <button class="mode-pill-opt active" id="game-mode-daily">
                 today
               </button>
               <button class="mode-pill-opt" id="game-mode-endless">
-                archive ∞
+                archive
               </button>
             </div>
             <span id="current-seed-badge" class="mono-seed-tag">day #1</span>
@@ -1671,7 +1662,10 @@
               class="subtle-pill-btn hidden seed-refresh-btn"
               title="Draw another sky from the archive"
             >
-              ↻ new sky
+              <svg class="ico" aria-hidden="true">
+                <use href="#i-moon"></use>
+              </svg>
+              <span>new sky</span>
             </button>
           </div>
         </div>
@@ -1687,7 +1681,7 @@
     <div id="howto-modal" class="modal-backdrop hidden">
       <div class="modal-card">
         <button id="close-howto-btn" class="modal-close-btn" aria-label="Close">
-          ✕
+          <svg class="ico" aria-hidden="true"><use href="#i-close"></use></svg>
         </button>
         <div id="howto-modal-body"></div>
       </div>
@@ -1697,20 +1691,25 @@
     <div id="win-modal" class="modal-backdrop hidden">
       <div class="modal-card win-card">
         <button id="close-win-btn" class="modal-close-btn" aria-label="Close">
-          ✕
+          <svg class="ico" aria-hidden="true"><use href="#i-close"></use></svg>
         </button>
         <div id="win-modal-body"></div>
         <div class="win-modal-actions">
           <button id="btn-copy-share" class="white-pill-btn">
-            share this note
+            <span>share this note</span>
           </button>
-          <button id="btn-win-next" class="accent-pill-btn hidden">
-            another sky →
-          </button>
+          <button id="btn-win-next" class="accent-pill-btn hidden"></button>
         </div>
       </div>
     </div>
 
     <script type="module" src="./js/observatory-main.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

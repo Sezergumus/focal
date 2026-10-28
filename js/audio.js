@@ -13,7 +13,8 @@ class SoundEngine {
         this.ctx = new AudioCtx();
       }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
+    // iOS reports 'interrupted' (not 'suspended') after a call, lock or app switch
+    if (this.ctx && this.ctx.state !== 'running') {
       this.ctx.resume();
     }
   }
