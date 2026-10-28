@@ -142,6 +142,30 @@
           </div>
 
           <button
+            id="btn-install"
+            class="icon-btn"
+            title="Install Focal"
+            aria-label="Install Focal as an app"
+            hidden
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3v12"></path>
+              <path d="m7 11 5 5 5-5"></path>
+              <path d="M5 20h14"></path>
+            </svg>
+          </button>
+
+          <button
             id="btn-howto"
             class="icon-btn"
             title="Observer's guide"
@@ -1704,6 +1728,7 @@
     </div>
 
     <script type="module" src="./js/observatory-main.js"></script>
+    <script type="module" src="./js/pwa-install.js"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

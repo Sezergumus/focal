@@ -1656,6 +1656,10 @@ color: var(--text-secondary);
   flex-shrink: 0;
 }
 
+.icon-btn[hidden] {
+  display: none;
+}
+
 .icon-btn:hover {
 color: var(--text-white);
   background: rgba(255, 244, 230, 0.1);

@@ -786,7 +786,9 @@ export class ObservatoryApp {
     const howToModal = document.getElementById("howto-modal");
     document.getElementById("btn-howto")?.addEventListener("click", () => {
       sound.playClick(440, 0.05, "triangle", 0.08);
-      this.openHowToModal();
+      // On the hub the compass tells about Focal; inside a game it opens that instrument's guide
+      if (this.currentView === "hub") this.openAboutModal();
+      else this.openHowToModal();
     });
     document
       .getElementById("close-howto-btn")
@@ -941,6 +943,59 @@ export class ObservatoryApp {
             <div class="howto-step-text">
               <h4>${s.heading}</h4>
               <p>${s.text}</p>
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    `;
+
+    document.getElementById("howto-modal")?.classList.remove("hidden");
+  }
+
+  openAboutModal() {
+    const body = document.getElementById("howto-modal-body");
+    if (!body) return;
+
+    const cards = [
+      {
+        icon: "01",
+        heading: "One sky a day",
+        text: "Eight small instruments, a new set every day, the same for everyone on the same date. Bring them all into tune to seal the day's logbook. At midnight the world drifts out of tune again.",
+      },
+      {
+        icon: "02",
+        heading: "No pressure",
+        text: "No timers, no sirens, no failures. A wrong turn only sends a small ripple across the water. Hints are there when you want them.",
+      },
+      {
+        icon: "03",
+        heading: "The archive",
+        text: "Finished early? Switch a puzzle to the archive to draw a fresh sky from the past, as often as you like.",
+      },
+      {
+        icon: "04",
+        heading: "Yours, on your device",
+        text: "No account and no analytics. Your progress lives in this browser, and Focal can be installed to your home screen and played offline.",
+      },
+    ];
+
+    body.innerHTML = `
+      <div class="modal-header-block">
+        <span class="guide-kicker">the gentle observatory</span>
+        <h2 style="margin-top:6px;">About Focal</h2>
+        <p class="guide-sub">"You keep a quiet lighthouse. Every day the wind, the sea and the sky drift slightly out of tune, and you gently set them right."</p>
+      </div>
+      <div class="howto-steps">
+        ${cards
+          .map(
+            (c) => `
+          <div class="howto-step-card">
+            <div class="howto-step-icon">${c.icon}</div>
+            <div class="howto-step-text">
+              <h4>${c.heading}</h4>
+              <p>${c.text}</p>
             </div>
           </div>
         `,

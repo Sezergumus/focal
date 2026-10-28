@@ -25,6 +25,7 @@ const SHELL = [
   "./js/main.js",
   "./js/observatory-audio.js",
   "./js/observatory-main.js",
+  "./js/pwa-install.js",
   "./js/rng.js",
 ];
 
